@@ -5,8 +5,8 @@ defmodule BlogBackend.Auth.User do
   schema "users" do
     field :email, :string
     field :username, :string
-    field :password, :string, redact: true, virtual: true
-    field :hashed_password, :string, redact: true
+    field :password, :string, redact: true
+    # field :hashed_password, :string, redact: true
 
     timestamps()
   end
@@ -17,28 +17,23 @@ defmodule BlogBackend.Auth.User do
               :__struct__ => atom | %{:__changeset__ => map, optional(any) => any},
               optional(atom) => any
             },
-          :invalid | %{optional(:__struct__) => none, optional(atom | binary) => any},
-          keyword
+          :invalid | %{optional(:__struct__) => none, optional(atom | binary) => any}
         ) :: Ecto.Changeset.t()
   @doc """
   The BlogBackend.Auth.User changeset function"
 
   """
-  def changeset(user, attrs, opts \\ []) do
+  def changeset(user, attrs) do
     user
     |> cast(attrs, [:username, :password, :email])
     |> validate_email()
     |> validate_username()
     |> validate_password()
-    |> hash_password(opts)
+    |> hash_password()
   end
 
   @spec validate_email(Ecto.Changeset.t()) :: Ecto.Changeset.t()
-  @doc """
-  Recives an Ecto.Changeset and check if his :email field is valid.
-
-  """
-  def validate_email(changeset = %Ecto.Changeset{}) do
+  defp validate_email(changeset) do
     changeset
     |> validate_required([:email], message: "email requerido")
     |> validate_format(:email, ~r/^[^\s]+@[^\s]+$/,
@@ -50,11 +45,7 @@ defmodule BlogBackend.Auth.User do
   end
 
   @spec validate_username(Ecto.Changeset.t()) :: Ecto.Changeset.t()
-  @doc """
-  Recives an Ecto.Changeset and check if his :username field is valid.
-
-  """
-  def validate_username(changeset = %Ecto.Changeset{}) do
+  defp validate_username(changeset) do
     changeset
     |> validate_required([:username], message: "nome de usuario requerido")
     |> validate_format(:username, ~r/^[\S][\w]+$/,
@@ -66,30 +57,20 @@ defmodule BlogBackend.Auth.User do
   end
 
   @spec validate_password(Ecto.Changeset.t()) :: Ecto.Changeset.t()
-  @doc """
-  Recives an Ecto.Changeset and check if his :password field is valid.
-
-  """
-  def validate_password(changeset = %Ecto.Changeset{}) do
+  defp validate_password(changeset) do
     changeset
     |> validate_required([:password], message: "senha requerida")
     |> validate_length(:password, min: 7, count: :bytes, message: "senha curta demais")
     |> validate_length(:password, max: 72, count: :bytes, message: "senha longa demais")
   end
 
-  @spec hash_password(Ecto.Changeset.t(), Array.t()) :: Ecto.Changeset.t()
-  @doc """
-  Recives a Ecto.Changeset and hash his :password field
-
-  """
-  def hash_password(changeset = %Ecto.Changeset{}, opts \\ []) do
-    hash_password? = Keyword.get(opts, :hash_password, true)
+  @spec hash_password(Ecto.Changeset.t()) :: Ecto.Changeset.t()
+  defp hash_password(changeset) do
     password = get_change(changeset, :password)
 
-    if hash_password? && password && changeset.valid? do
+    if password && changeset.valid? do
       changeset
-      |> put_change(:hashed_password, Bcrypt.hash_pwd_salt(password))
-      |> delete_change(:password)
+      |> put_change(:password, Bcrypt.hash_pwd_salt(password))
     else
       changeset
     end
