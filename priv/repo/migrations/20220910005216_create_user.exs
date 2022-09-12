@@ -5,7 +5,7 @@ defmodule BlogBackend.Repo.Migrations.CreateUser do
     create table(:users) do
       add :email, :string, null: false, size: 160
       add :username, :string, null: false, size: 20
-      add :hash_password, :string, null: false, size: 72
+      add :password, :string, null: false, size: 72
 
       timestamps()
     end
