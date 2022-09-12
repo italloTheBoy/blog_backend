@@ -13,7 +13,7 @@ defmodule BlogBackendWeb.ChangesetHelpers do
   @spec put_errors(Ecto.Changeset.t()) :: map
   def put_errors(changeset = %Ecto.Changeset{}) do
     changeset.errors
-      |> Enum.map(fn {k, v} -> {k, elem(v, 0)} end)
-      |> Map.new()
+    |> Enum.map(fn {k, v} -> {k, elem(v, 0)} end)
+    |> Map.new()
   end
 end

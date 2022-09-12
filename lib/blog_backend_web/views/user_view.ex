@@ -12,7 +12,6 @@ defmodule BlogBackendWeb.UserView do
     }
   end
 
-
   def render("register.json", %{changeset: changeset}) do
     %{
       message: "Não foi possivel concluír o registro",
