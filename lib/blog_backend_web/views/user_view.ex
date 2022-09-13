@@ -19,4 +19,29 @@ defmodule BlogBackendWeb.UserView do
       errors: put_errors(changeset)
     }
   end
+
+  def render("show.json", %{user: %User{id: id, username: username, email: email}}) do
+    %{
+      message: "Usuario solicitado encontrado",
+      user: %{
+        id: id,
+        email: email,
+        username: username
+      }
+    }
+  end
+
+  def render("show.json", _params) do
+    %{message: "Não foi possivel encontrar o usuario solicitado"}
+  end
+
+  def render("delete.json", %{is_deleted: is_deleted})
+      when is_deleted do
+    %{message: "Usuario excluido"}
+  end
+
+  def render("delete.json", %{is_deleted: is_deleted})
+      when is_deleted == false do
+    %{message: "Não foi possivel excluir o usuario"}
+  end
 end
