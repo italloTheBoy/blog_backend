@@ -2,21 +2,23 @@ defmodule BlogBackendWeb.UserController do
   use BlogBackendWeb, :controller
 
   import BlogBackend.Auth
+  import Ecto.Query, warn: false
 
   alias BlogBackend.Auth.User
+  alias BlogBackend.Repo
 
-  @spec register(
+  @spec create(
           Plug.Conn.t(),
           :invalid | %{optional(:__struct__) => none, optional(atom | binary) => any}
         ) :: Plug.Conn.t()
-  def register(conn, params) do
+  def create(conn, params) do
     params
-    |> register_user()
+    |> create_user()
     |> case do
-      {:ok, user = %User{}} ->
+      {:ok, new_user = %User{}} ->
         conn
         |> put_status(201)
-        |> render("register.json", new_user: user)
+        |> render("register.json", new_user: new_user)
 
       {:error, changeset = %Ecto.Changeset{}} ->
         conn
@@ -25,7 +27,8 @@ defmodule BlogBackendWeb.UserController do
     end
   end
 
-  def show(conn, %{"user_id" => user_id}) do
+  @spec show(Plug.Conn.t(), map) :: Plug.Conn.t()
+  def show(conn, %{"id" => user_id}) do
     case get_user(user_id) do
       user = %User{} ->
         conn
@@ -39,8 +42,28 @@ defmodule BlogBackendWeb.UserController do
     end
   end
 
+  @spec update(Plug.Conn.t(), map) :: Plug.Conn.t()
+  def update(conn, %{"id" => user_id, "changes" => changes}) do
+    user_id
+    |> get_user()
+    |> update_user(changes)
+    |> case do
+      {:ok, updated_user = %User{}} ->
+        conn
+        |> put_status(200)
+        |> render("update.json", updated_user: updated_user)
+
+      {:error, changeset = %Ecto.Changeset{}} ->
+        IO.inspect(changeset)
+
+        conn
+        |> put_status(422)
+        |> render("update.json", changeset: changeset)
+    end
+  end
+
   @spec delete(Plug.Conn.t(), map) :: Plug.Conn.t()
-  def delete(conn, %{"user_id" => user_id}) do
+  def delete(conn, %{"id" => user_id}) do
     case get_user(user_id) do
       user = %User{} ->
         delete_user(user)

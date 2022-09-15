@@ -8,9 +8,7 @@ defmodule BlogBackendWeb.Router do
   scope "/api", BlogBackendWeb do
     pipe_through :api
 
-    post "/register", UserController, :register
-    get "/user/:user_id", UserController, :show
-    delete "/user/:user_id", UserController, :delete
+    resources "/users", UserController, only: [:create, :show, :update, :delete]
   end
 
   # Enables LiveDashboard only for development

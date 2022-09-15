@@ -11,7 +11,8 @@
 # and so on) as they will fail if something goes wrong.
 
 BlogBackend.Auth.change_user(%BlogBackend.Auth.User{}, %{
-    password: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    password: "password",
+    password_confirmation: "password",
     username: "itallo",
     email: "itallo@gmail.com"
   })

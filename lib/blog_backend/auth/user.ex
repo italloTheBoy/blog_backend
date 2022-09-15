@@ -61,6 +61,7 @@ defmodule BlogBackend.Auth.User do
     |> validate_required([:password], message: "senha requerida")
     |> validate_length(:password, min: 7, count: :bytes, message: "senha curta demais")
     |> validate_length(:password, max: 72, count: :bytes, message: "senha longa demais")
+    |> validate_confirmation(:password, required: true, message: "as senhas não batem")
   end
 
   @spec hash_password(Ecto.Changeset.t()) :: Ecto.Changeset.t()

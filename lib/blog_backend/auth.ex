@@ -48,7 +48,7 @@ defmodule BlogBackend.Auth do
       {:error, %Ecto.Changeset{}}
 
   """
-  def register_user(attrs \\ %{}) do
+  def create_user(attrs \\ %{}) do
     %User{}
     |> User.changeset(attrs)
     |> Repo.insert()
