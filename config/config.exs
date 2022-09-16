@@ -37,12 +37,9 @@ config :logger, :console,
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 
-config :bcrypt_elixir, log_rounds: 12
-
-# config :guardian, Guardian,
-#   issuer: "blog_api",
-#   secret_key: System.get_env("SECRET_KEY"),
-#   serializer: BlogBackend.GuardianSerializer
+config :guardian, Guardian,
+  issuer: "blog_backend",
+  secret_key: System.get_env("SECRET_KEY")
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

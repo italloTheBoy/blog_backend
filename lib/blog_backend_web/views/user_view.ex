@@ -31,7 +31,7 @@ defmodule BlogBackendWeb.UserView do
     %{message: "não foi possivel encontrar o usuario solicitado"}
   end
 
-  def render("update.json", %{updated_user: updated_user}) do
+  def render("update.json", %{updated_user: updated_user = %User{}}) do
     %{
       message: "os dados do usuario foram atualizados",
       user: render("user.json", user: updated_user)
@@ -46,6 +46,10 @@ defmodule BlogBackendWeb.UserView do
     }
   end
 
+  def render("update.json", _params) do
+    %{message: "não foi possivel encontrar o usuario solicitado"}
+  end
+
   def render("delete.json", %{is_deleted: is_deleted})
       when is_deleted do
     %{message: "usuario excluido"}
@@ -56,7 +60,7 @@ defmodule BlogBackendWeb.UserView do
     %{message: "não foi possivel excluir o usuario"}
   end
 
-  def render("user.json", %{user: user}) do
+  def render("user.json", %{user: user = %User{}}) do
     Map.take(
       user,
       [:id, :email, :username, :inserted_at, :updated_at]

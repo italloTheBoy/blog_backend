@@ -1,11 +1,12 @@
 defmodule BlogBackend.Auth.User do
   use Ecto.Schema
   import Ecto.Changeset
+  alias Argon2
 
   schema "users" do
     field :email, :string
     field :username, :string
-    field :password, :string, redact: true
+    field :password, :string, redact: true, load_in_query: false
 
     timestamps()
   end
@@ -59,20 +60,15 @@ defmodule BlogBackend.Auth.User do
   defp validate_password(changeset) do
     changeset
     |> validate_required([:password], message: "senha requerida")
-    |> validate_length(:password, min: 7, count: :bytes, message: "senha curta demais")
-    |> validate_length(:password, max: 72, count: :bytes, message: "senha longa demais")
+    |> validate_length(:password, min: 6 , message: "senha curta demais")
+    |> validate_length(:password, max: 20, message: "senha longa demais")
     |> validate_confirmation(:password, required: true, message: "as senhas não batem")
   end
 
   @spec hash_password(Ecto.Changeset.t()) :: Ecto.Changeset.t()
-  defp hash_password(changeset) do
-    password = get_change(changeset, :password)
-
-    if password && changeset.valid? do
-      changeset
-      |> put_change(:password, Bcrypt.hash_pwd_salt(password))
-    else
-      changeset
-    end
+  defp hash_password(changeset = %Ecto.Changeset{valid?: true, changes: %{password: password}}) do
+    change(changeset, password: Argon2.hash_pwd_salt(password))
   end
+
+  defp hash_password(changeset), do: changeset
 end

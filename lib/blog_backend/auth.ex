@@ -37,6 +37,22 @@ defmodule BlogBackend.Auth do
   def get_user(id), do: Repo.get(User, id)
 
   @doc """
+  Gets a single user.
+
+  Raises Ecto.NoResultsError if no record was found.
+
+  ## Examples
+
+      iex> get_user!(id)
+      %User{}
+
+      iex> get_user!(bad_id)
+      Ecto.NoResultsError
+
+  """
+  def get_user!(id), do: Repo.get!(User, id)
+
+  @doc """
   Creates a user.
 
   ## Examples
@@ -99,5 +115,25 @@ defmodule BlogBackend.Auth do
   """
   def change_user(%User{} = user, attrs \\ %{}) do
     User.changeset(user, attrs)
+  end
+
+  def auth_user(id, plain_text_password) do
+    from(u in User,
+      where: u.id == ^id,
+      select_merge: %{password: u.password}
+    )
+    |> Repo.one()
+    |> case do
+      user = %User{} ->
+        if Argon2.verify_pass(plain_text_password, user.password) do
+          {:ok, user}
+        else
+          {:error, :invalid_credentials}
+        end
+
+      nil ->
+        Argon2.no_user_verify()
+        {:error, :invalid_credentials}
+    end
   end
 end

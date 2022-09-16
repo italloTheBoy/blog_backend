@@ -5,7 +5,6 @@ defmodule BlogBackendWeb.UserController do
   import Ecto.Query, warn: false
 
   alias BlogBackend.Auth.User
-  alias BlogBackend.Repo
 
   @spec create(
           Plug.Conn.t(),
@@ -44,22 +43,31 @@ defmodule BlogBackendWeb.UserController do
 
   @spec update(Plug.Conn.t(), map) :: Plug.Conn.t()
   def update(conn, %{"id" => user_id, "changes" => changes}) do
-    user_id
-    |> get_user()
-    |> update_user(changes)
-    |> case do
-      {:ok, updated_user = %User{}} ->
-        conn
-        |> put_status(200)
-        |> render("update.json", updated_user: updated_user)
+    user = get_user(user_id)
 
-      {:error, changeset = %Ecto.Changeset{}} ->
-        IO.inspect(changeset)
+    if user do
+      user
+      |> update_user(changes)
+      |> case do
+        {:ok, updated_user = %User{}} ->
+          conn
+          |> put_status(200)
+          |> render("update.json", updated_user: updated_user)
 
-        conn
-        |> put_status(422)
-        |> render("update.json", changeset: changeset)
+        {:error, changeset = %Ecto.Changeset{}} ->
+          IO.inspect(changeset)
+
+          conn
+          |> put_status(422)
+          |> render("update.json", changeset: changeset)
+      end
+    else
+      conn
+      |> put_status(404)
+      |> render("update.json")
     end
+
+
   end
 
   @spec delete(Plug.Conn.t(), map) :: Plug.Conn.t()
