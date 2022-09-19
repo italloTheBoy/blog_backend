@@ -1,5 +1,5 @@
-defmodule BlogBackend.Auth.Guardian do
-  use Guardian, otp: :blog_backend
+defmodule BlogBackend.Auth.User.Guardian do
+  use Guardian, otp_app: :blog_backend
 
   import BlogBackend.Auth
 
