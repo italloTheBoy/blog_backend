@@ -117,9 +117,9 @@ defmodule BlogBackend.Auth do
     User.changeset(user, attrs)
   end
 
-  def auth_user(id, plain_text_password) do
+  def auth_user(email, plain_text_password) do
     from(u in User,
-      where: u.id == ^id,
+      where: u.email == ^email,
       select_merge: %{password: u.password}
     )
     |> Repo.one()

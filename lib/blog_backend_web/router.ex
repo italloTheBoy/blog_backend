@@ -5,10 +5,27 @@ defmodule BlogBackendWeb.Router do
     plug :accepts, ["json"]
   end
 
-  scope "/api", BlogBackendWeb do
-    pipe_through :api
+  pipeline :maybe_auth do
+    plug BlogBackend.Auth.User.Pipeline.MaybeAuth
+  end
 
-    resources "/users", UserController, only: [:create, :show, :update, :delete]
+  pipeline :ensure_auth do
+    plug BlogBackend.Auth.User.Pipeline.EnsureAuth
+  end
+
+  scope "/api", BlogBackendWeb do
+    pipe_through [:api, :maybe_auth]
+
+    post "/login", AuthController, :login
+    delete "/logout", AuthController, :logout
+
+    resources "/users", UserController, only: [:create, :show]
+  end
+
+  scope "/api", BlogBackendWeb do
+    pipe_through [:api, :maybe_auth, :ensure_auth]
+
+    resources "/users", UserController, only: [:update, :delete]
   end
 
   # Enables LiveDashboard only for development

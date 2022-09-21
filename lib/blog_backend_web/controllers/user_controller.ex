@@ -1,10 +1,10 @@
 defmodule BlogBackendWeb.UserController do
   use BlogBackendWeb, :controller
 
-  import BlogBackend.Auth
   import Ecto.Query, warn: false
 
   alias BlogBackend.Auth.User
+  alias BlogBackend.Auth
 
   @spec create(
           Plug.Conn.t(),
@@ -12,7 +12,7 @@ defmodule BlogBackendWeb.UserController do
         ) :: Plug.Conn.t()
   def create(conn, params) do
     params
-    |> create_user()
+    |> Auth.create_user()
     |> case do
       {:ok, new_user = %User{}} ->
         conn
@@ -28,7 +28,7 @@ defmodule BlogBackendWeb.UserController do
 
   @spec show(Plug.Conn.t(), map) :: Plug.Conn.t()
   def show(conn, %{"id" => user_id}) do
-    case get_user(user_id) do
+    case Auth.get_user(user_id) do
       user = %User{} ->
         conn
         |> put_status(200)
@@ -43,11 +43,11 @@ defmodule BlogBackendWeb.UserController do
 
   @spec update(Plug.Conn.t(), map) :: Plug.Conn.t()
   def update(conn, %{"id" => user_id, "changes" => changes}) do
-    user = get_user(user_id)
+    user = Auth.get_user(user_id)
 
     if user do
       user
-      |> update_user(changes)
+      |> Auth.update_user(changes)
       |> case do
         {:ok, updated_user = %User{}} ->
           conn
@@ -66,15 +66,13 @@ defmodule BlogBackendWeb.UserController do
       |> put_status(404)
       |> render("update.json")
     end
-
-
   end
 
   @spec delete(Plug.Conn.t(), map) :: Plug.Conn.t()
   def delete(conn, %{"id" => user_id}) do
-    case get_user(user_id) do
+    case Auth.get_user(user_id) do
       user = %User{} ->
-        delete_user(user)
+        Auth.delete_user(user)
 
         conn
         |> put_status(200)

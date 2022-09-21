@@ -4,5 +4,5 @@ defmodule BlogBackend.Auth.User.Pipeline.EnsureAuth do
     module: BlogBackend.Auth.User.Guardian,
     error_handler: BlogBackend.Auth.User.ErrorHandler
 
-  plug Guardian.Plug.EnsureAuthenticated, claims: %{"typ" => "access"}
+  plug Guardian.Plug.EnsureAuthenticated
 end

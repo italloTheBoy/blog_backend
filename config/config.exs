@@ -39,7 +39,7 @@ config :phoenix, :json_library, Jason
 
 config :guardian, Guardian,
   issuer: "blog_backend",
-  secret_key: System.get_env("SECRET_KEY")
+  secret_key: "3K8VkCwvM5U94Xu1kJoNczAWbNJE3fSWhYkAZqYXk+I8m5wSdadaFn3xy7P2ENiK"
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
