@@ -4,7 +4,7 @@ defmodule BlogBackendWeb.AuthView do
   def render("login.json", %{token: token}) do
     %{
       message: "usuario autenticado",
-      token: "Bearer #{token}"
+      token: token
     }
   end
 

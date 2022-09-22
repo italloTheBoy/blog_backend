@@ -13,17 +13,24 @@ defmodule BlogBackendWeb.Router do
     plug BlogBackend.Auth.Pipeline.EnsureAuth
   end
 
+  pipeline :ensure_not_auth do
+    plug BlogBackend.Auth.Pipeline.EnsureNotAuth
+  end
+
+  pipeline :ensure_login do
+    plug BlogBackend.Auth.Pipeline.EnsureLogin
+  end
+
   scope "/api", BlogBackendWeb do
-    pipe_through [:api, :maybe_auth]
+    pipe_through [:api, :maybe_auth, :ensure_not_auth]
 
     post "/login", AuthController, :login
-    delete "/logout", AuthController, :logout
 
     resources "/users", UserController, only: [:create, :show]
   end
 
   scope "/api", BlogBackendWeb do
-    pipe_through [:api, :maybe_auth, :ensure_auth]
+    pipe_through [:api, :maybe_auth, :ensure_auth, :ensure_login]
 
     resources "/users", UserController, only: [:update, :delete]
   end
