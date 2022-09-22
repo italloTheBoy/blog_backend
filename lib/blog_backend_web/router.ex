@@ -6,11 +6,11 @@ defmodule BlogBackendWeb.Router do
   end
 
   pipeline :maybe_auth do
-    plug BlogBackend.Auth.User.Pipeline.MaybeAuth
+    plug BlogBackend.Auth.Pipeline.MaybeAuth
   end
 
   pipeline :ensure_auth do
-    plug BlogBackend.Auth.User.Pipeline.EnsureAuth
+    plug BlogBackend.Auth.Pipeline.EnsureAuth
   end
 
   scope "/api", BlogBackendWeb do

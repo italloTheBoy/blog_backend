@@ -1,15 +1,10 @@
 defmodule BlogBackendWeb.AuthView do
   use BlogBackendWeb, :view
 
-  alias BlogBackend.Auth.User
-
-  def render("login.json", %{current_user: current_user = %User{}}) do
+  def render("login.json", %{token: token}) do
     %{
       message: "usuario autenticado",
-      user: Map.take(
-        current_user,
-        [:id, :email, :username, :inserted_at, :updated_at]
-      )
+      token: "Bearer #{token}"
     }
   end
 
@@ -18,12 +13,5 @@ defmodule BlogBackendWeb.AuthView do
       message: "email ou senha invalidos",
       data: data
     }
-  end
-
-  def render("user.json", %{user: user = %User{}}) do
-    Map.take(
-      user,
-      [:id, :email, :username, :inserted_at, :updated_at]
-    )
   end
 end

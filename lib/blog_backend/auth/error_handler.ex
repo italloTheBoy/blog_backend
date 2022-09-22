@@ -1,4 +1,4 @@
-defmodule BlogBackend.Auth.User.ErrorHandler do
+defmodule BlogBackend.Auth.ErrorHandler do
   import Plug.Conn
 
   @behaviour Guardian.Plug.ErrorHandler
