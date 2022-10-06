@@ -5,10 +5,11 @@ defmodule BlogBackendWeb.UserView do
 
   alias BlogBackend.Auth.User
 
-  def render("register.json", %{new_user: new_user = %User{}}) do
+  def render("register.json", %{user: user = %User{}, token: token}) do
     %{
       message: "registro concluído",
-      new_user_id: new_user.id
+      user: render("user.json", user: user),
+      token: token
     }
   end
 

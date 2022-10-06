@@ -9,12 +9,10 @@ defmodule BlogBackendWeb.AuthController do
     case Auth.auth_user(email, password) do
       {:ok, user = %User{}} ->
         {:ok, token, _claims} = Guardian.encode_and_sign(user, %{"typ" => "access"})
-        IO.inspect(token)
-        IO.inspect(Guardian.Plug.current_resource(conn))
 
         conn
         |> put_status(200)
-        |> render("login.json", token: token)
+        |> render("login.json", token: token, user: user)
 
       {:error, _reason} ->
         conn

@@ -1,10 +1,11 @@
 defmodule BlogBackendWeb.AuthView do
   use BlogBackendWeb, :view
 
-  def render("login.json", %{token: token}) do
+  def render("login.json", %{token: token, user: user}) do
     %{
       message: "usuario autenticado",
-      token: token
+      token: token,
+      user: render_one(user, BlogBackendWeb.UserView, "user.json")
     }
   end
 

@@ -60,7 +60,7 @@ defmodule BlogBackend.Auth.User do
   defp validate_password(changeset) do
     changeset
     |> validate_required([:password], message: "senha requerida")
-    |> validate_length(:password, min: 6 , message: "senha curta demais")
+    |> validate_length(:password, min: 6, message: "senha curta demais")
     |> validate_length(:password, max: 20, message: "senha longa demais")
     |> validate_confirmation(:password, required: true, message: "as senhas não batem")
   end

@@ -3,7 +3,7 @@ defmodule BlogBackendWeb.UserController do
 
   import Ecto.Query, warn: false
 
-  alias BlogBackend.Auth.User
+  alias BlogBackend.Auth.{User, Guardian}
   alias BlogBackend.Auth
 
   @spec create(
@@ -14,10 +14,12 @@ defmodule BlogBackendWeb.UserController do
     params
     |> Auth.create_user()
     |> case do
-      {:ok, new_user = %User{}} ->
+      {:ok, user = %User{}} ->
+        {:ok, token, _claims} = Guardian.encode_and_sign(user, %{"typ" => "access"})
+
         conn
         |> put_status(201)
-        |> render("register.json", new_user: new_user)
+        |> render("register.json", user: user, token: token)
 
       {:error, changeset = %Ecto.Changeset{}} ->
         conn
