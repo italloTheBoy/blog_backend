@@ -46,9 +46,9 @@ defmodule BlogBackendWeb.Endpoint do
   plug Plug.Session, @session_options
 
   plug Corsica,
-    origins: "*",
+    origins: "http://localhost:5173",
     allow_credentials: true,
-    allow_headers: ["content-type", "accept"]
+    allow_headers: ["content-type", "accept", "authorization"]
 
   plug BlogBackendWeb.Router
 end

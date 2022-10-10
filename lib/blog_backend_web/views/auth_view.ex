@@ -11,9 +11,9 @@ defmodule BlogBackendWeb.AuthView do
 
   def render("login.json", %{data: data}) do
     %{
+      data: data,
       error: %{
-        message: "email ou senha invalidos",
-        data: data
+        message: "email ou senha invalidos"
       }
     }
   end
