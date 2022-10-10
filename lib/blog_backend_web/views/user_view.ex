@@ -15,9 +15,8 @@ defmodule BlogBackendWeb.UserView do
 
   def render("register.json", %{changeset: changeset}) do
     %{
-      message: "não foi possivel concluír o registro",
       data: put_changes(changeset),
-      errors: put_errors(changeset)
+      errors: put_errors(changeset, "não foi possivel concluír o registro")
     }
   end
 
@@ -29,7 +28,9 @@ defmodule BlogBackendWeb.UserView do
   end
 
   def render("show.json", _params) do
-    %{message: "não foi possivel encontrar o usuario solicitado"}
+    %{
+      errors: put_errors("não foi possivel encontrar o usuario solicitado")
+    }
   end
 
   def render("update.json", %{updated_user: updated_user = %User{}}) do
@@ -41,24 +42,27 @@ defmodule BlogBackendWeb.UserView do
 
   def render("update.json", %{changeset: changeset}) do
     %{
-      message: "não foi possivel atuazlizar os dados do usuario",
       data: put_changes(changeset),
-      errors: put_errors(changeset)
+      error: put_errors(changeset, "não foi possivel atuazlizar os dados do usuario")
     }
   end
 
   def render("update.json", _params) do
-    %{message: "não foi possivel encontrar o usuario solicitado"}
+    %{
+      error: put_errors("não foi possivel encontrar o usuario solicitado")
+    }
   end
 
   def render("delete.json", %{is_deleted: is_deleted})
       when is_deleted do
-    %{message: "usuario excluido"}
+    %{ message: "usuario excluido" }
   end
 
   def render("delete.json", %{is_deleted: is_deleted})
       when is_deleted == false do
-    %{message: "não foi possivel excluir o usuario"}
+    %{
+      error: put_errors("não foi possivel excluir o usuario")
+    }
   end
 
   def render("user.json", %{user: user = %User{}}) do

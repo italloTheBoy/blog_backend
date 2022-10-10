@@ -1,6 +1,8 @@
 defmodule BlogBackendWeb.AuthView do
   use BlogBackendWeb, :view
 
+  import BlogBackendWeb.ChangesetHelpers
+
   def render("login.json", %{token: token, user: user}) do
     %{
       message: "usuario autenticado",
@@ -11,10 +13,8 @@ defmodule BlogBackendWeb.AuthView do
 
   def render("login.json", %{data: data}) do
     %{
-      data: data,
-      error: %{
-        message: "email ou senha invalidos"
-      }
+      errors: put_errors("email ou senha invalidos"),
+      data: data
     }
   end
 end
