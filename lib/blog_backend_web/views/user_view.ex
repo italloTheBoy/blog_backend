@@ -43,13 +43,13 @@ defmodule BlogBackendWeb.UserView do
   def render("update.json", %{changeset: changeset}) do
     %{
       data: put_changes(changeset),
-      error: put_errors(changeset, "não foi possivel atuazlizar os dados do usuario")
+      errors: put_errors(changeset, "não foi possivel atualizar os dados do usuario")
     }
   end
 
   def render("update.json", _params) do
     %{
-      error: put_errors("não foi possivel encontrar o usuario solicitado")
+      errors: put_errors("não foi possivel encontrar o usuario solicitado")
     }
   end
 
@@ -61,7 +61,7 @@ defmodule BlogBackendWeb.UserView do
   def render("delete.json", %{is_deleted: is_deleted})
       when is_deleted == false do
     %{
-      error: put_errors("não foi possivel excluir o usuario")
+      errors: put_errors("não foi possivel excluir o usuario")
     }
   end
 
