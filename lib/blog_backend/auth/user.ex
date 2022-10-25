@@ -1,29 +1,31 @@
 defmodule BlogBackend.Auth.User do
   use Ecto.Schema
+
   import Ecto.Changeset
+
   alias Argon2
+  alias BlogBackend.Timeline.Post
+
 
   schema "users" do
     field :email, :string
     field :username, :string
     field :password, :string, redact: true, load_in_query: false
 
+    has_many :posts, Post, on_delete: :delete_all
+
     timestamps()
   end
 
   @spec changeset(
-          {map, map}
-          | %{
-              :__struct__ => atom | %{:__changeset__ => map, optional(any) => any},
-              optional(atom) => any
-            },
+          %__MODULE__{},
           :invalid | %{optional(:__struct__) => none, optional(atom | binary) => any}
         ) :: Ecto.Changeset.t()
   @doc """
   The BlogBackend.Auth.User changeset function"
 
   """
-  def changeset(user, attrs) do
+  def changeset(user = %__MODULE__{}, attrs) do
     user
     |> cast(attrs, [:username, :password, :email])
     |> validate_email(required: true)
@@ -32,6 +34,14 @@ defmodule BlogBackend.Auth.User do
     |> hash_password()
   end
 
+  @spec changeset_update(
+          %__MODULE__{},
+          :invalid | %{optional(:__struct__) => none, optional(atom | binary) => any}
+        ) :: Ecto.Changeset.t()
+  @doc """
+  The BlogBackend.Auth.User changeset function to update data"
+
+  """
   def changeset_update(user, attrs) do
     user
     |> cast(attrs, [:username, :password, :email])
@@ -70,11 +80,11 @@ defmodule BlogBackend.Auth.User do
     changeset
     |> validate_required([:username], message: "nome de usuario requerido")
     |> validate_format(:username, ~r/^[\S][\w]+$/,
-      message: "nome de usuario contem espaços ou caracteres especiais"
+      message: "Username contém espaços ou caracteres especiais."
     )
-    |> validate_length(:username, max: 20, message: "nome de usuario longo demais")
-    |> unsafe_validate_unique(:username, BlogBackend.Repo, message: "nome de usuario em uso")
-    |> unique_constraint(:username, message: "nome de usuario em uso")
+    |> validate_length(:username, max: 20, message: "Nome de usuario longo demais.")
+    |> unsafe_validate_unique(:username, BlogBackend.Repo, message: "Nome de usuario em uso.")
+    |> unique_constraint(:username, message: "Nome de usuario em uso.")
   end
 
   @spec validate_password(Ecto.Changeset.t()) :: Ecto.Changeset.t()
