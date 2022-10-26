@@ -10,7 +10,8 @@ defmodule BlogBackend.MixProject do
       compilers: Mix.compilers(),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
-      deps: deps()
+      deps: deps(),
+      dialyzer: [plt_add_apps: [:mix]]
     ]
   end
 
@@ -33,8 +34,9 @@ defmodule BlogBackend.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:corsica, "~> 1.0"},
       {:argon2_elixir, "~> 3.0"},
+      {:corsica, "~> 1.0"},
+      {:dialyxir, "~> 0.5", only: [:dev], runtime: false},
       {:phoenix, "~> 1.6.9"},
       {:phoenix_ecto, "~> 4.4"},
       {:ecto_sql, "~> 3.6"},
