@@ -10,6 +10,6 @@ defmodule BlogBackend.Auth.ErrorHandler do
 
     conn
     |> put_status(401)
-    |> json(%{error: error_body})
+    |> json(%{errors: %{global: error_body}})
   end
 end
