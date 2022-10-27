@@ -5,14 +5,7 @@ defmodule BlogBackendWeb.PostController do
 
   alias BlogBackend.Timeline.Post
 
-  @type post_payload() :: %{
-    optional(:title) => String.t(),
-    optional(:body) => String.t(),
-    optional(:user_id) => Integer.t(),
-    optional(:user) => %{required(:id) => Integer.t()}
-  }
-
-  @spec create(Plug.Conn.t(), post_payload()) :: Plug.Conn.t()
+  @spec create(Plug.Conn.t(), Post.t()) :: Plug.Conn.t()
   def create(conn, params) do
     params
     |> create_post()
@@ -26,6 +19,21 @@ defmodule BlogBackendWeb.PostController do
         conn
         |> put_status(422)
         |> render("create.json", status: 422, changeset: changeset)
+    end
+  end
+
+  @spec show(Plug.Conn.t(), %{id: Integer.t()}) :: Plug.Conn.t()
+  def show(conn, %{"id" => post_id}) do
+    case get_post(post_id) do
+      %Post{} = post ->
+        conn
+        |> put_status(200)
+        |> render("show.json", status: 200, post: post)
+
+      nil ->
+        conn
+        |> put_status(404)
+        |> render("show.json", status: 404)
     end
   end
 end

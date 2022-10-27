@@ -27,13 +27,14 @@ defmodule BlogBackendWeb.Router do
     post "/login", AuthController, :login
 
     resources "/users", UserController, only: [:create, :show]
+    resources "/posts", PostController, only: [:show]
   end
 
   scope "/api", BlogBackendWeb do
     pipe_through [:api, :maybe_auth, :ensure_auth, :ensure_login]
 
     resources "/users", UserController, only: [:update, :delete] do
-      resources "/posts", PostController, except: [:index, :new, :edit, :update]
+      resources "/posts", PostController, only: [:create, :delete]
     end
   end
 

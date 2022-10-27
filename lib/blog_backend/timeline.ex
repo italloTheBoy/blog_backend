@@ -21,6 +21,21 @@ defmodule BlogBackend.Timeline do
     Repo.all(Post)
   end
 
+  @spec get_post(Integer.t() | String.t()) :: %Post{} | nil
+  @doc """
+  Gets a single post.
+
+  ## Examples
+
+      iex> get_post!(123)
+      %Post{}
+
+      iex> get_post!(456)
+      nil
+
+  """
+  def get_post(id), do: Repo.get(Post, id)
+
   @doc """
   Gets a single post.
 
