@@ -14,6 +14,15 @@ defmodule BlogBackend.Timeline.Post do
     timestamps()
   end
 
+  @type t() :: %{
+    optional(:id) => Integer.t(),
+    optional(:user_id) => Integer.t(),
+    optional(:title) => String.t(),
+    optional(:body) => String.t(),
+    optional(:inserted_at) => NaiveDateTime.t(),
+    optional(:updated_at) => NaiveDateTime.t(),
+  }
+
   @spec changeset(
           %__MODULE__{},
           :invalid | %{optional(:__struct__) => none, optional(atom | binary) => any}
