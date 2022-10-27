@@ -88,6 +88,7 @@ defmodule BlogBackend.Timeline do
     |> Repo.update()
   end
 
+  @spec delete_post(%Post{}) :: {:ok, %Post{}} | {:error, %Ecto.Changeset{}}
   @doc """
   Deletes a post.
 
@@ -100,9 +101,8 @@ defmodule BlogBackend.Timeline do
       {:error, %Ecto.Changeset{}}
 
   """
-  def delete_post(%Post{} = post) do
-    Repo.delete(post)
-  end
+  def delete_post(%Post{} = post), do: Repo.delete(post)
+
 
   @doc """
   Returns an `%Ecto.Changeset{}` for tracking post changes.

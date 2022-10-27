@@ -11,21 +11,21 @@ defmodule BlogBackendWeb.PostView do
     )
   end
 
-  def render("create.json", %{status: 201, post: post}) do
+  def render("create.json", %{status: 201, post: %Post{} = post}) do
     %{
       message: "Postagem realizada",
       post: render("post.json", post: post)
     }
   end
 
-  def render("create.json", %{status: 422, changeset: changeset}) do
+  def render("create.json", %{status: 422, changeset: %Ecto.Changeset{} = changeset}) do
     render(ErrorView, "error.json",
       changeset: changeset,
       message: "Não conseguimos realizar esta postagem"
     )
   end
 
-  def render("show.json", %{status: 200, post: post}) do
+  def render("show.json", %{status: 200, post: %Post{} = post}) do
     %{
       message: "Postagem encontrada",
       post: render("post.json", post: post)
@@ -34,5 +34,16 @@ defmodule BlogBackendWeb.PostView do
 
   def render("show.json", %{status: 404}) do
     render(ErrorView, "error.json", message: "Não conseguimos realizar esta postagem")
+  end
+
+  def render("delete.json", %{status: 200, post: %Post{} = post}) do
+    %{
+      message: "Postagem deletada",
+      post: render("post.json", post: post)
+    }
+  end
+
+  def render("delete.json", %{status: 404}) do
+    render(ErrorView, "error.json", message: "Não conseguimos localizar e deletar esta postagem")
   end
 end

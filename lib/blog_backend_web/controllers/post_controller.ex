@@ -22,7 +22,7 @@ defmodule BlogBackendWeb.PostController do
     end
   end
 
-  @spec show(Plug.Conn.t(), %{id: Integer.t()}) :: Plug.Conn.t()
+  @spec show(Plug.Conn.t(), map) :: Plug.Conn.t()
   def show(conn, %{"id" => post_id}) do
     case get_post(post_id) do
       %Post{} = post ->
@@ -34,6 +34,23 @@ defmodule BlogBackendWeb.PostController do
         conn
         |> put_status(404)
         |> render("show.json", status: 404)
+    end
+  end
+
+  @spec delete(Plug.Conn.t(), map) :: Plug.Conn.t()
+  def delete(conn, %{"id" => post_id}) do
+    case get_post(post_id) do
+      %Post{} = post ->
+        {:ok, %Post{} = deleted_post} = delete_post(post)
+
+        conn
+        |> put_status(200)
+        |> render("delete.json", status: 200, post: deleted_post)
+
+      nil ->
+        conn
+        |> put_status(404)
+        |> render("delete.json", status: 404)
     end
   end
 end
