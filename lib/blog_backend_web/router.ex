@@ -32,7 +32,9 @@ defmodule BlogBackendWeb.Router do
   scope "/api", BlogBackendWeb do
     pipe_through [:api, :maybe_auth, :ensure_auth, :ensure_login]
 
-    resources "/users", UserController, only: [:update, :delete]
+    resources "/users", UserController, only: [:update, :delete] do
+      resources "/posts", PostController, except: [:index, :new, :edit, :update]
+    end
   end
 
   # Enables LiveDashboard only for development
