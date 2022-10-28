@@ -4,7 +4,7 @@ defmodule BlogBackend.Auth.User do
   import Ecto.Changeset
 
   alias Argon2
-  alias BlogBackend.Timeline.Post
+  alias BlogBackend.Timeline.{Post, Comment}
 
 
   schema "users" do
@@ -13,6 +13,7 @@ defmodule BlogBackend.Auth.User do
     field :password, :string, redact: true, load_in_query: false
 
     has_many :posts, Post, on_delete: :delete_all
+    has_many :comemnts, Comment, on_delete: :delete_all
 
     timestamps()
   end

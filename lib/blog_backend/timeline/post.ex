@@ -4,12 +4,15 @@ defmodule BlogBackend.Timeline.Post do
   import Ecto.Changeset
 
   alias BlogBackend.Auth.User
+  alias BlogBackend.Timeline.Comment
 
   schema "posts" do
     field :title, :string
     field :body, :string
 
     belongs_to :user, User
+
+    has_many :comments, Comment
 
     timestamps()
   end
