@@ -2,6 +2,7 @@ defmodule BlogBackendWeb.ErrorView do
   use BlogBackendWeb, :view
 
   import BlogBackendWeb.ChangesetHelpers
+  import Phoenix.Controller
 
   def render("error.json", %{changeset: changeset, message: message}) do
     %{
@@ -21,5 +22,9 @@ defmodule BlogBackendWeb.ErrorView do
       payload: put_changes(changeset),
       errors: put_errors(changeset)
     }
+  end
+
+  def template_not_found(template, _assigns) do
+    %{message: status_message_from_template(template)}
   end
 end
