@@ -30,7 +30,7 @@ defmodule BlogBackendWeb.CommentController do
       {:ok, %Comment{} = comment} <- Timeline.get_comment(id),
       {:ok, %Comment{}} <- Timeline.delete_comment(comment)
     ) do
-      render(conn, "delete.josn")
+      render(conn, "delete.json", [])
     end
   end
 end

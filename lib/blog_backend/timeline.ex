@@ -206,7 +206,6 @@ defmodule BlogBackend.Timeline do
 
   @spec delete_comment(%Comment{}) ::
           {:ok, %Comment{}} | {:error, %Ecto.Changeset{}}
-
   @doc """
   Deletes a comment.
 
