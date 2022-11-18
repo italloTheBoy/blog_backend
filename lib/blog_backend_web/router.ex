@@ -28,13 +28,21 @@ defmodule BlogBackendWeb.Router do
 
     resources "/users", UserController, only: [:create, :show]
     resources "/posts", PostController, only: [:show]
+    resources "/comments", CommentController, only: [:show]
+
   end
 
   scope "/api", BlogBackendWeb do
     pipe_through [:api, :maybe_auth, :ensure_auth, :ensure_login]
 
     resources "/users", UserController, only: [:update, :delete] do
-      resources "/posts", PostController, only: [:create, :delete]
+      resources "/posts", PostController, only: [:create, :delete] do
+        resources "/comments", CommentController, only: [:create]
+      end
+
+      resources "/comments", CommentController, only: [:delete] do
+        resources "/comments", CommentController, only: [:create]
+      end
     end
   end
 
