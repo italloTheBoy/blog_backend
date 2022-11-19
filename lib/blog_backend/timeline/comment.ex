@@ -26,31 +26,30 @@ defmodule BlogBackend.Timeline.Comment do
   def changeset(comment, %{"post_id" => _post_id} = attrs) do
     comment
     |> cast(attrs, [:body, :user_id, :post_id])
-    |> validate_required([:body], message: "Preencha este campo")
-    |> check_constraint(:comment,
-      name: :comments_has_an_unique_father,
-      message: "Reação inválida"
-    )
-    |> validate_user()
+    |> do_changeset()
     |> validate_post()
-    |> validate_body()
   end
 
   def changeset(comment, %{"comment_id" => _comment_id} = attrs) do
     comment
     |> cast(attrs, [:body, :user_id, :comment_id])
-    |> validate_required([:body], message: "Preencha este campo")
+    |> do_changeset()
+    |> validate_comment()
+  end
+
+  defp do_changeset(%Ecto.Changeset{} = changeset) do
+    changeset
     |> check_constraint(:comment,
       name: :comments_has_an_unique_father,
-      message: "Reação inválida"
+      message: "Comentario inválido"
     )
     |> validate_user()
-    |> validate_comment()
     |> validate_body()
   end
 
   defp validate_body(%Ecto.Changeset{} = changeset) do
     changeset
+    |> validate_required([:body], message: "Insira o conteúdo do commentario")
     |> validate_length(:body, max: 280, message: "Conteúdo miuto longo")
   end
 
@@ -62,8 +61,8 @@ defmodule BlogBackend.Timeline.Comment do
 
   defp validate_post(%Ecto.Changeset{} = changeset) do
     changeset
-    |> validate_required([:post_id], message: "Postagem necessário")
-    |> assoc_constraint(:post, message: "Postagem inválido")
+    |> validate_required([:post_id], message: "Postagem necessária")
+    |> assoc_constraint(:post, message: "Postagem inválida")
   end
 
   defp validate_comment(%Ecto.Changeset{} = changeset) do
