@@ -6,7 +6,7 @@ defmodule BlogBackendWeb.FallbackController do
   """
   use BlogBackendWeb, :controller
 
-  @type t :: Plug.Conn.t() | {:error, struct() | map() | atom()| integer()}
+  @type t :: Plug.Conn.t() | {:error, atom()}
 
   # This clause handles errors returned by Ecto's insert/update/delete.
   def call(conn, {:error, %Ecto.Changeset{} = changeset}) do
