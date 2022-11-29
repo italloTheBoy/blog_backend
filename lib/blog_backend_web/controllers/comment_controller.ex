@@ -13,7 +13,7 @@ defmodule BlogBackendWeb.CommentController do
       conn
       |> put_status(201)
       |> put_resp_header("location", Routes.comment_path(conn, :show, comment))
-      |> render("show.json", comment: comment)
+      |> render("show.json", comment: comment, message: "Created")
     end
   end
 

@@ -7,6 +7,13 @@ defmodule BlogBackendWeb.CommentView do
     %{data: render_many(comments, CommentView, "comment.json")}
   end
 
+  def render("show.json", %{comment: comment, message: message}) do
+    %{
+      message: message,
+      data: render_one(comment, CommentView, "comment.json")
+    }
+  end
+
   def render("show.json", %{comment: comment}) do
     %{
       message: "OK",
