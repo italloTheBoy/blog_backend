@@ -112,4 +112,58 @@ defmodule BlogBackend.TimelineTest do
       assert %Ecto.Changeset{} = Timeline.change_comment(comment)
     end
   end
+
+  describe "reactions" do
+    alias BlogBackend.Timeline.Reaction
+
+    import BlogBackend.TimelineFixtures
+
+    @invalid_attrs %{type: nil}
+
+    test "list_reactions/0 returns all reactions" do
+      reaction = reaction_fixture()
+      assert Timeline.list_reactions() == [reaction]
+    end
+
+    test "get_reaction!/1 returns the reaction with given id" do
+      reaction = reaction_fixture()
+      assert Timeline.get_reaction!(reaction.id) == reaction
+    end
+
+    test "create_reaction/1 with valid data creates a reaction" do
+      valid_attrs = %{type: "some type"}
+
+      assert {:ok, %Reaction{} = reaction} = Timeline.create_reaction(valid_attrs)
+      assert reaction.type == "some type"
+    end
+
+    test "create_reaction/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = Timeline.create_reaction(@invalid_attrs)
+    end
+
+    test "update_reaction/2 with valid data updates the reaction" do
+      reaction = reaction_fixture()
+      update_attrs = %{type: "some updated type"}
+
+      assert {:ok, %Reaction{} = reaction} = Timeline.update_reaction(reaction, update_attrs)
+      assert reaction.type == "some updated type"
+    end
+
+    test "update_reaction/2 with invalid data returns error changeset" do
+      reaction = reaction_fixture()
+      assert {:error, %Ecto.Changeset{}} = Timeline.update_reaction(reaction, @invalid_attrs)
+      assert reaction == Timeline.get_reaction!(reaction.id)
+    end
+
+    test "delete_reaction/1 deletes the reaction" do
+      reaction = reaction_fixture()
+      assert {:ok, %Reaction{}} = Timeline.delete_reaction(reaction)
+      assert_raise Ecto.NoResultsError, fn -> Timeline.get_reaction!(reaction.id) end
+    end
+
+    test "change_reaction/1 returns a reaction changeset" do
+      reaction = reaction_fixture()
+      assert %Ecto.Changeset{} = Timeline.change_reaction(reaction)
+    end
+  end
 end

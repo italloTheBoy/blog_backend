@@ -32,4 +32,18 @@ defmodule BlogBackend.TimelineFixtures do
 
     comment
   end
+
+  @doc """
+  Generate a reaction.
+  """
+  def reaction_fixture(attrs \\ %{}) do
+    {:ok, reaction} =
+      attrs
+      |> Enum.into(%{
+        type: "some type"
+      })
+      |> BlogBackend.Timeline.create_reaction()
+
+    reaction
+  end
 end

@@ -29,7 +29,7 @@ defmodule BlogBackendWeb.Router do
     resources "/users", UserController, only: [:create, :show]
     resources "/posts", PostController, only: [:show]
     resources "/comments", CommentController, only: [:show]
-
+    resources "/reactions", ReactionController, only: [:show]
   end
 
   scope "/api", BlogBackendWeb do
@@ -38,11 +38,15 @@ defmodule BlogBackendWeb.Router do
     resources "/users", UserController, only: [:update, :delete] do
       resources "/posts", PostController, only: [:create, :delete] do
         resources "/comments", CommentController, only: [:create]
+        resources "/reactions", ReactionController, only: [:create, :update]
       end
 
       resources "/comments", CommentController, only: [:delete] do
         resources "/comments", CommentController, only: [:create]
+        resources "/reactions", ReactionController, only: [:create, :update]
       end
+
+      resources "/reactions", ReactionController, only: [:delete]
     end
   end
 
