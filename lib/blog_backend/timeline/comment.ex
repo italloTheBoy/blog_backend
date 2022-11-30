@@ -6,6 +6,8 @@ defmodule BlogBackend.Timeline.Comment do
 
   import Ecto.Changeset
 
+  @permitted_columns [:body, :user_id, :post_id, :comment_id]
+
   schema "comments" do
     field :body, :string
 
@@ -18,32 +20,14 @@ defmodule BlogBackend.Timeline.Comment do
     timestamps()
   end
 
-  @spec changeset(
-          %__MODULE__{},
-          :invalid | %{optional(:__struct__) => none, optional(atom | binary) => any}
-        ) :: Ecto.Changeset.t()
   @doc false
-  def changeset(comment, %{"post_id" => _post_id} = attrs) do
-    comment
-    |> cast(attrs, [:body, :user_id, :post_id])
-    |> do_changeset()
-    |> validate_post()
-  end
 
-  def changeset(comment, %{"comment_id" => _comment_id} = attrs) do
-    comment
-    |> cast(attrs, [:body, :user_id, :comment_id])
-    |> do_changeset()
-    |> validate_comment()
-  end
+  @spec changeset(%__MODULE__{}, map) :: Ecto.Changeset.t()
 
-  defp do_changeset(%Ecto.Changeset{} = changeset) do
-    changeset
-    |> check_constraint(:comment,
-      name: :comments_has_an_unique_father,
-      message: "Comentario inválido"
-    )
-    |> validate_user()
+  def changeset(comment, attrs \\ %{}) do
+    comment
+    |> cast(attrs, [:body, :user_id, :post_id, :comment_id])
+    |> validate_assocs()
     |> validate_body()
   end
 
@@ -61,13 +45,42 @@ defmodule BlogBackend.Timeline.Comment do
 
   defp validate_post(%Ecto.Changeset{} = changeset) do
     changeset
-    |> validate_required([:post_id], message: "Postagem necessária")
-    |> assoc_constraint(:post, message: "Postagem inválida")
+    |> validate_required([:post_id], message: "Postagem pai necessária")
+    |> assoc_constraint(:post, message: "Postagem pai inválida")
   end
 
   defp validate_comment(%Ecto.Changeset{} = changeset) do
     changeset
-    |> validate_required([:comment_id], message: "Comentario necessário")
-    |> assoc_constraint(:comment, message: "Comentario inválido")
+    |> validate_required([:comment_id], message: "Comentario pai necessário")
+    |> assoc_constraint(:comment, message: "Comentario pai inválido")
+  end
+
+  defp validate_father_entity(%Ecto.Changeset{} = changeset) do
+    comment_id = get_field(changeset, :comment_id)
+    post_id = get_field(changeset, :post_id)
+
+    case {comment_id, post_id} do
+      {nil, nil} ->
+        add_error(changeset, :father_entity, "Entidade pai requerida")
+
+      {nil, _post_id} ->
+        validate_post(changeset)
+
+      {_comment_id, nil} ->
+        validate_comment(changeset)
+
+      _ ->
+        add_error(changeset, :father_entity, "Entidade pai invalida")
+    end
+  end
+
+  defp validate_assocs(%Ecto.Changeset{} = changeset) do
+    changeset
+    |> validate_user()
+    |> check_constraint(:comment,
+      name: :comments_has_an_unique_father,
+      message: "Comentario inválido"
+    )
+    |> validate_father_entity()
   end
 end
