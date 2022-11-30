@@ -4,8 +4,9 @@ defmodule BlogBackend.Auth do
   """
 
   import Ecto.Query, warn: false
-  alias BlogBackend.Repo
 
+  alias Phoenix.LiveView.Plug
+  alias BlogBackend.Repo
   alias BlogBackend.Auth.User
 
   @doc """
@@ -51,6 +52,29 @@ defmodule BlogBackend.Auth do
 
   """
   def get_user!(id), do: Repo.get!(User, id)
+
+  @doc """
+  Get the athenticated user.
+
+  ## Examples
+
+      iex> get_current_user(conn)
+      {:ok, %User{}}
+
+      iex> get_current_user(conn)
+      {:error, :unauthorized}
+
+  """
+  @spec get_current_user(Plug.Conn.t()) :: {:ok, %User{}} | {:error, :unauthorized}
+  def get_current_user(conn) do
+    case Map.get(conn.assigns, :current_user, nil) do
+      %User{} = user ->
+        {:ok, user}
+
+      nil ->
+        {:error, :unauthorized}
+    end
+  end
 
   @doc """
   Creates a user.

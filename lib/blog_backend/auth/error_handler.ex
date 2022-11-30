@@ -6,10 +6,8 @@ defmodule BlogBackend.Auth.ErrorHandler do
 
   @impl Guardian.Plug.ErrorHandler
   def auth_error(conn, {type, _reason}, _opts) do
-    error_body = to_string(type)
-
     conn
     |> put_status(401)
-    |> json(%{errors: %{global: error_body}})
+    |> json(%{message: to_string(type)})
   end
 end

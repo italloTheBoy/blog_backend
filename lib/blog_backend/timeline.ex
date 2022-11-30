@@ -3,10 +3,20 @@ defmodule BlogBackend.Timeline do
   The Timeline context.
   """
 
-  import Ecto.Query, warn: false
   alias BlogBackend.Repo
+  alias BlogBackend.Auth.User
+  alias BlogBackend.Timeline.{Post, Comment, Reaction}
 
-  alias BlogBackend.Timeline.Post
+  import Ecto.Query, warn: false
+
+  @spec authorize(
+          atom,
+          %User{id: non_neg_integer},
+          %Post{user_id: non_neg_integer}
+          | %Comment{user_id: non_neg_integer}
+          | %Reaction{user_id: non_neg_integer}
+        ) :: :ok | :error
+  defdelegate authorize(action, user, params), to: BlogBackend.Timeline.Policy
 
   @doc """
   Returns the list of posts.
