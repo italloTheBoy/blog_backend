@@ -20,6 +20,18 @@ defmodule BlogBackend.Timeline.Comment do
     timestamps()
   end
 
+  @type t :: %__MODULE__{
+          body: String.t(),
+          id: non_neg_integer,
+          post: Post.t(),
+          post_id: non_neg_integer,
+          user: User.t(),
+          user_id: non_neg_integer,
+          comment: __MODULE__.t(),
+          comment_id: non_neg_integer,
+          comments: [t],
+        }
+
   @doc false
 
   @spec changeset(%__MODULE__{}, map) :: Ecto.Changeset.t()

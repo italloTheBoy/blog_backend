@@ -17,14 +17,14 @@ defmodule BlogBackend.Timeline.Post do
     timestamps()
   end
 
-  @type t() :: %{
-    optional(:id) => Integer.t(),
-    optional(:user_id) => Integer.t(),
-    optional(:title) => String.t(),
-    optional(:body) => String.t(),
-    optional(:inserted_at) => NaiveDateTime.t(),
-    optional(:updated_at) => NaiveDateTime.t(),
-  }
+  @type t() :: %__MODULE__{
+          id: non_neg_integer(),
+          user_id: non_neg_integer(),
+          user: User.t(),
+          comments: [Comment.t()],
+          title: String.t(),
+          body: String.t()
+        }
 
   @spec changeset(
           %__MODULE__{},
@@ -52,7 +52,7 @@ defmodule BlogBackend.Timeline.Post do
 
   defp validate_user(changeset) do
     changeset
-    |> validate_required([:user_id], message:  "Login necessário")
+    |> validate_required([:user_id], message: "Login necessário")
     |> assoc_constraint(:user, message: "Login inválido")
   end
 end

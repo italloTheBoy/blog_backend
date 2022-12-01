@@ -18,10 +18,20 @@ defmodule BlogBackend.Timeline.Reaction do
     timestamps()
   end
 
+  @type t :: %__MODULE__{
+          comment: Comment.t(),
+          comment_id: non_neg_integer,
+          id: non_neg_integer,
+          post: Post.t(),
+          post_id: non_neg_integer,
+          type: String.t(),
+          user: User.t(),
+          user_id: non_neg_integer
+        }
+
   @doc false
 
   @spec changeset(%__MODULE__{}, map) :: Ecto.Changeset.t()
-
   def changeset(comment, attrs \\ %{}) do
     comment
     |> cast(attrs, @permitted_columns)

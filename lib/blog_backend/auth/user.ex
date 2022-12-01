@@ -6,17 +6,25 @@ defmodule BlogBackend.Auth.User do
   alias Argon2
   alias BlogBackend.Timeline.{Post, Comment}
 
-
   schema "users" do
     field :email, :string
     field :username, :string
     field :password, :string, redact: true, load_in_query: false
 
     has_many :posts, Post, on_delete: :delete_all
-    has_many :comemnts, Comment, on_delete: :delete_all
+    has_many :comments, Comment, on_delete: :delete_all
 
     timestamps()
   end
+
+  @type t() :: %__MODULE__{
+          comments: [Comment.t()],
+          email: String.t(),
+          id: non_neg_integer,
+          password: String.t(),
+          posts: [Post.t()],
+          username: String.t()
+        }
 
   @spec changeset(
           %__MODULE__{},
@@ -56,7 +64,7 @@ defmodule BlogBackend.Auth.User do
   defp validate_email(changeset, options \\ []) do
     required = Keyword.get(options, :required, false)
 
-    if (required == true) do
+    if required == true do
       validate_required(changeset, [:email], message: "email requerido")
     end
 
@@ -69,12 +77,11 @@ defmodule BlogBackend.Auth.User do
     |> unique_constraint(:email, message: "email em uso")
   end
 
-
   @spec validate_username(Ecto.Changeset.t()) :: Ecto.Changeset.t()
   defp validate_username(changeset, options \\ []) do
     required = Keyword.get(options, :required, false)
 
-    if (required == true) do
+    if required == true do
       validate_required(changeset, [:username], message: "nome de usuario requerido")
     end
 
@@ -92,7 +99,7 @@ defmodule BlogBackend.Auth.User do
   defp validate_password(changeset, options \\ []) do
     required = Keyword.get(options, :required, false)
 
-    if (required == true) do
+    if required == true do
       validate_required(changeset, [:password], message: "senha requerida")
     end
 
