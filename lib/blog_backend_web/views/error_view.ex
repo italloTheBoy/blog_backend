@@ -24,10 +24,13 @@ defmodule BlogBackendWeb.ErrorView do
     }
   end
 
-  def template_not_found(template, _assigns),
+  def template_unauthorized(template, _assigns),
     do: %{message: status_message_from_template(template)}
 
   def template_forbidden(template, _assigns),
+    do: %{message: status_message_from_template(template)}
+
+  def template_not_found(template, _assigns),
     do: %{message: status_message_from_template(template)}
 
   def template_internal_server_error(template, _assigns),

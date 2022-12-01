@@ -21,6 +21,10 @@ defmodule BlogBackendWeb.Router do
     plug BlogBackend.Auth.Pipeline.EnsureLogin
   end
 
+  pipeline :put_current_user do
+    plug BlogBackend.Auth.Pipeline.PutCurrentUser
+  end
+
   scope "/api", BlogBackendWeb do
     pipe_through [:api, :maybe_auth, :ensure_not_auth]
 
@@ -29,7 +33,6 @@ defmodule BlogBackendWeb.Router do
     resources "/users", UserController, only: [:create, :show]
     resources "/posts", PostController, only: [:show]
     resources "/comments", CommentController, only: [:show]
-    resources "/reactions", ReactionController, only: [:show]
   end
 
   scope "/api", BlogBackendWeb do
@@ -38,16 +41,27 @@ defmodule BlogBackendWeb.Router do
     resources "/users", UserController, only: [:update, :delete] do
       resources "/posts", PostController, only: [:create, :delete] do
         resources "/comments", CommentController, only: [:create]
-        resources "/reactions", ReactionController, only: [:create, :update]
       end
 
       resources "/comments", CommentController, only: [:delete] do
         resources "/comments", CommentController, only: [:create]
-        resources "/reactions", ReactionController, only: [:create, :update]
       end
 
-      resources "/reactions", ReactionController, only: [:delete]
     end
+  end
+
+  scope "/api", BlogBackendWeb do
+    pipe_through [:api, :maybe_auth, :ensure_auth, :put_current_user]
+
+    resources "/posts", PostController, only: [] do
+      resources "/reactions", ReactionController, only: [:create, :update]
+    end
+
+    resources "/comments", CommentController, only: [] do
+      resources "/reactions", ReactionController, only: [:create, :update]
+    end
+
+    resources "/reactions", ReactionController, only: [:delete, :show]
   end
 
   # Enables LiveDashboard only for development

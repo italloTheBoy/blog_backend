@@ -16,7 +16,7 @@ defmodule BlogBackend.Timeline.Policy do
           | %Comment{user_id: non_neg_integer}
           | %Reaction{user_id: non_neg_integer}
         ) :: :ok | :error
-  def authorize(action, _user, _params)
+  def authorize(action, %User{}, _params)
       when action in @easy_access_actions,
       do: :ok
 
@@ -24,5 +24,5 @@ defmodule BlogBackend.Timeline.Policy do
       when action in @hard_access_actions,
       do: :ok
 
-  def authorize(_action, _user, _params), do: :error
+  def authorize(_action, _user, _params), do: {:error, :forbidden}
 end
