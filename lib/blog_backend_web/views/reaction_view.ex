@@ -17,9 +17,9 @@ defmodule BlogBackendWeb.ReactionView do
   end
 
   def render("reaction.json", %{reaction: reaction}) do
-    %{
-      id: reaction.id,
-      type: reaction.type
-    }
+    Map.take(
+      reaction,
+      [:id, :user_id, :post_id, :comment_id, :type, :inserted_at, :updated_at]
+    )
   end
 end

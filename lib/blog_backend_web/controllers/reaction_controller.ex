@@ -19,7 +19,6 @@ defmodule BlogBackendWeb.ReactionController do
     ) do
       conn
       |> put_status(201)
-      |> put_resp_header("location", Routes.reaction_path(conn, :show, reaction))
       |> render("show.json", reaction: reaction, message: "Created")
     end
   end

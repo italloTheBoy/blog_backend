@@ -5,10 +5,11 @@ defmodule BlogBackendWeb.CommentController do
   alias BlogBackend.{Auth, Timeline}
   alias BlogBackend.Auth.User
   alias BlogBackend.Timeline.Comment
+  alias BlogBackendWeb.FallbackController
 
-  action_fallback BlogBackendWeb.FallbackController
+  action_fallback FallbackController
 
-  @spec create(Plug.Conn.t(), map) :: BlogBackendWeb.FallbackController.t()
+  @spec create(Plug.Conn.t(), map) :: FallbackController.t()
   def create(conn, params) do
     with(
       {:ok, %User{} = user} <- Auth.get_current_user(conn),
@@ -18,19 +19,18 @@ defmodule BlogBackendWeb.CommentController do
     ) do
       conn
       |> put_status(201)
-      |> put_resp_header("location", Routes.comment_path(conn, :show, comment))
       |> render("show.json", comment: comment, message: "Created")
     end
   end
 
-  @spec show(Plug.Conn.t(), map) :: BlogBackendWeb.FallbackController.t()
+  @spec show(Plug.Conn.t(), map) :: FallbackController.t()
   def show(conn, %{"id" => id}) do
     with {:ok, %Comment{} = comment} <- Timeline.get_comment(id) do
       render(conn, "show.json", comment: comment)
     end
   end
 
-  @spec delete(Plug.Conn.t(), map) :: BlogBackendWeb.FallbackController.t()
+  @spec delete(Plug.Conn.t(), map) :: FallbackController.t()
   def delete(conn, %{"id" => id}) do
     with(
       {:ok, %User{} = user} <- Auth.get_current_user(conn),

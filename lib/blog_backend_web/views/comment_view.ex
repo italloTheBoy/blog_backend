@@ -3,10 +3,6 @@ defmodule BlogBackendWeb.CommentView do
 
   alias BlogBackendWeb.CommentView
 
-  def render("index.json", %{comments: comments}) do
-    %{data: render_many(comments, CommentView, "comment.json")}
-  end
-
   def render("show.json", %{comment: comment, message: message}) do
     %{
       message: message,
@@ -26,9 +22,9 @@ defmodule BlogBackendWeb.CommentView do
   end
 
   def render("comment.json", %{comment: comment}) do
-    %{
-      id: comment.id,
-      body: comment.body
-    }
+    Map.take(
+      comment,
+      [:id, :user_id, :post_id, :comment_id, :body, :inserted_at, :updated_at]
+    )
   end
 end

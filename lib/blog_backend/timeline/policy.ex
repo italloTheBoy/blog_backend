@@ -6,15 +6,19 @@ defmodule BlogBackend.Timeline.Policy do
   alias BlogBackend.Timeline.Reaction
   alias BlogBackend.Auth.User
 
-  @easy_access_actions [:create_comment, :create_reaction]
-  @hard_access_actions [:show_reaction, :update_reaction, :delete_comment, :delete_reaction]
+  @easy_access_actions [:create_post, :create_comment, :create_reaction]
+  @hard_access_actions [
+    :show_reaction,
+    :update_reaction,
+    :delete_post,
+    :delete_comment,
+    :delete_reaction
+  ]
 
   @spec authorize(
           atom,
-          %User{id: non_neg_integer},
-          %Post{user_id: non_neg_integer}
-          | %Comment{user_id: non_neg_integer}
-          | %Reaction{user_id: non_neg_integer}
+          User.t(),
+          Post.t() | Comment.t() | Reaction.t()
         ) :: :ok | :error
   def authorize(action, %User{}, _params)
       when action in @easy_access_actions,
