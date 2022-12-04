@@ -2,9 +2,8 @@ defmodule BlogBackendWeb.ReactionController do
   use BlogBackendWeb, :controller
 
   alias Phoenix.LiveView.Plug
-  alias BlogBackend.Auth
+  alias BlogBackend.{Auth, Timeline}
   alias BlogBackend.Auth.User
-  alias BlogBackend.Timeline
   alias BlogBackend.Timeline.Reaction
   alias BlogBackendWeb.FallbackController
 

@@ -39,29 +39,25 @@ defmodule BlogBackendWeb.Router do
     pipe_through [:api, :maybe_auth, :ensure_auth, :ensure_login]
 
     resources "/users", UserController, only: [:update, :delete] do
-      resources "/posts", PostController, only: [:create, :delete] do
-        resources "/comments", CommentController, only: [:create]
-      end
-
-      resources "/comments", CommentController, only: [:delete] do
-        resources "/comments", CommentController, only: [:create]
-      end
-
+      resources "/posts", PostController, only: [:create, :delete]
     end
   end
 
   scope "/api", BlogBackendWeb do
     pipe_through [:api, :maybe_auth, :ensure_auth, :put_current_user]
 
+    resources "/comments", CommentController, only: [:delete]
+    resources "/reactions", ReactionController, only: [:show, :delete]
+
     resources "/posts", PostController, only: [] do
+      resources "/comments", CommentController, only: [:create]
       resources "/reactions", ReactionController, only: [:create, :update]
     end
 
     resources "/comments", CommentController, only: [] do
+      resources "/comments", CommentController, only: [:create]
       resources "/reactions", ReactionController, only: [:create, :update]
     end
-
-    resources "/reactions", ReactionController, only: [:delete, :show]
   end
 
   # Enables LiveDashboard only for development

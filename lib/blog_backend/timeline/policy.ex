@@ -6,8 +6,8 @@ defmodule BlogBackend.Timeline.Policy do
   alias BlogBackend.Timeline.Reaction
   alias BlogBackend.Auth.User
 
-  @easy_access_actions [:create_reaction]
-  @hard_access_actions [:show_reaction, :update_reaction, :delete_reaction]
+  @easy_access_actions [:create_comment, :create_reaction]
+  @hard_access_actions [:show_reaction, :update_reaction, :delete_comment, :delete_reaction]
 
   @spec authorize(
           atom,
