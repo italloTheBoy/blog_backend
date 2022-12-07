@@ -4,28 +4,32 @@ defmodule BlogBackend.AuthFixtures do
   entities via the `BlogBackend.Auth` context.
   """
 
+  alias BlogBackend.Auth
+
   @doc """
   Generate a unique user email.
   """
-  def unique_user_email, do: "some email#{System.unique_integer([:positive])}"
+  def unique_user_email, do: "somemail#{System.unique_integer([:positive])}@gmail.com"
 
   @doc """
   Generate a unique user username.
   """
-  def unique_user_username, do: "some username#{System.unique_integer([:positive])}"
+  def unique_user_username, do: "some_username#{System.unique_integer([:positive])}"
 
   @doc """
   Generate a user.
   """
+  @spec user_fixture(map) :: User.t()
   def user_fixture(attrs \\ %{}) do
     {:ok, user} =
       attrs
       |> Enum.into(%{
+        username: unique_user_username(),
         email: unique_user_email(),
         password: "some password",
-        username: unique_user_username()
+        password_confirmation: "some password"
       })
-      |> BlogBackend.Auth.create_user()
+      |> Auth.create_user()
 
     user
   end
