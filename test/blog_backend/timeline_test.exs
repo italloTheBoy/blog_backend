@@ -1,69 +1,88 @@
 defmodule BlogBackend.TimelineTest do
-  use BlogBackend.DataCase
+  use BlogBackend.DataCase, async: true
+
+  import BlogBackend.AuthFixtures
+  import BlogBackend.TimelineFixtures
 
   alias BlogBackend.Timeline
+  alias BlogBackend.Timeline.{Post, Comment, Reaction}
+
+  @moduletag :timeline
 
   describe "posts" do
-    alias BlogBackend.Timeline.Post
+    @invalid_attrs %{user_id: nil, body: nil, title: nil}
 
-    import BlogBackend.TimelineFixtures
-
-    @invalid_attrs %{text: nil, title: nil}
-
-    test "list_posts/0 returns all posts" do
-      post = post_fixture()
-      assert Timeline.list_posts() == [post]
-    end
-
-    test "get_post!/1 returns the post with given id" do
-      post = post_fixture()
-      assert Timeline.get_post!(post.id) == post
-    end
-
+    @tag posts: "create_post"
     test "create_post/1 with valid data creates a post" do
-      valid_attrs = %{text: "some text", title: "some title"}
+      user = user_fixture()
+
+      valid_attrs = %{
+        user_id: user.id,
+        title: "some title",
+        body: "some body"
+      }
 
       assert {:ok, %Post{} = post} = Timeline.create_post(valid_attrs)
-      assert post.text == "some text"
+      assert post.user_id == user.id
       assert post.title == "some title"
+      assert post.body == "some body"
     end
 
+    @tag posts: "create_post"
     test "create_post/1 with invalid data returns error changeset" do
       assert {:error, %Ecto.Changeset{}} = Timeline.create_post(@invalid_attrs)
     end
 
-    test "update_post/2 with valid data updates the post" do
+    @tag posts: "get_post"
+    test "get_post/1 with valid id returns a post" do
       post = post_fixture()
-      update_attrs = %{text: "some updated text", title: "some updated title"}
 
-      assert {:ok, %Post{} = post} = Timeline.update_post(post, update_attrs)
-      assert post.text == "some updated text"
-      assert post.title == "some updated title"
+      assert {:ok, post} == Timeline.get_post(post.id)
     end
 
-    test "update_post/2 with invalid data returns error changeset" do
-      post = post_fixture()
-      assert {:error, %Ecto.Changeset{}} = Timeline.update_post(post, @invalid_attrs)
-      assert post == Timeline.get_post!(post.id)
+    @tag posts: "get_post"
+    test "get_post/1 with invalid id returns an error" do
+      assert {:error, :not_found} == Timeline.get_post(11)
     end
 
-    test "delete_post/1 deletes the post" do
+    @tag posts: "list_posts"
+    test "list_posts/1 with numeric id returns all user posts" do
+      user = user_fixture()
+      post = post_fixture(%{user_id: user.id})
+
+      assert [%Post{} = post] == Timeline.list_posts(user.id)
+    end
+
+    @tag posts: "list_posts"
+    test "list_posts/1 with %User{} returns all user posts" do
+      user = user_fixture()
+      post = post_fixture(%{user_id: user.id})
+
+      assert [%Post{} = post] == Timeline.list_posts(user)
+    end
+
+    @tag posts: "delete_post"
+    test "delete_post/1 with valid %Post{} deletes the post" do
       post = post_fixture()
+
       assert {:ok, %Post{}} = Timeline.delete_post(post)
-      assert_raise Ecto.NoResultsError, fn -> Timeline.get_post!(post.id) end
+      assert {:error, :not_found} == Timeline.get_post(post.id)
     end
 
+    @tag posts: "delete_post"
+    test "delete_post/1 with invalid post return an error" do
+      assert {:error, :not_found} = Timeline.delete_post(nil)
+    end
+
+    @tag posts: "change_post"
     test "change_post/1 returns a post changeset" do
       post = post_fixture()
+
       assert %Ecto.Changeset{} = Timeline.change_post(post)
     end
   end
 
   describe "comments" do
-    alias BlogBackend.Timeline.Comment
-
-    import BlogBackend.TimelineFixtures
-
     @invalid_attrs %{comment: nil}
 
     test "list_comments/0 returns all comments" do
@@ -114,10 +133,6 @@ defmodule BlogBackend.TimelineTest do
   end
 
   describe "reactions" do
-    alias BlogBackend.Timeline.Reaction
-
-    import BlogBackend.TimelineFixtures
-
     @invalid_attrs %{type: nil}
 
     test "list_reactions/0 returns all reactions" do
