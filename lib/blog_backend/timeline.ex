@@ -19,16 +19,22 @@ defmodule BlogBackend.Timeline do
   defdelegate authorize(action, user, params), to: BlogBackend.Timeline.Policy
 
   @doc """
-  Returns the list of posts.
+  Creates a post.
 
   ## Examples
 
-      iex> list_posts()
-      [%Post{}, ...]
+      iex> create_post(attrs)
+      {:ok, %Post{}}
+
+      iex> create_post(bad_attrs))
+      {:error, %Ecto.Changeset{}}
 
   """
-  def list_posts do
-    Repo.all(Post)
+  @spec create_post(map) :: {:ok, Post.t()} | {:error, Ecto.Changeset.t()}
+  def create_post(attrs \\ %{}) do
+    %Post{}
+    |> Post.changeset(attrs)
+    |> Repo.insert()
   end
 
   @doc """
@@ -36,14 +42,14 @@ defmodule BlogBackend.Timeline do
 
   ## Examples
 
-      iex> get_post(123)
+      iex> get_post(22)
       {:ok, %Post{}}
 
-      iex> get_post(456)
+      iex> get_post(11)
       {:error, :not_found}
 
   """
-  @spec get_post(Integer.t() | String.t()) :: {:ok, Post.t()} | {:error, :not_found}
+  @spec get_post(non_neg_integer()) :: {:ok, Post.t()} | {:error, :not_found}
   def get_post(id) do
     case Repo.get(Post, id) do
       %Post{} = post -> {:ok, post}
@@ -52,58 +58,27 @@ defmodule BlogBackend.Timeline do
   end
 
   @doc """
-  Gets a single post.
-
-  Raises `Ecto.NoResultsError` if the Post does not exist.
+  Returns all user posts.
 
   ## Examples
 
-      iex> get_post!(123)
-      %Post{}
+      iex> list_posts(22)
+      [%Post{}, ...]
 
-      iex> get_post!(456)
-      ** (Ecto.NoResultsError)
-
-  """
-  def get_post!(id), do: Repo.get!(Post, id)
-
-  @doc """
-  Creates a post.
-
-  ## Examples
-
-      iex> create_post(%{field: value})
-      {:ok, %Post{}}
-
-      iex> create_post(%{field: bad_value})
-      {:error, %Ecto.Changeset{}}
+      # iex> list_posts(%User{id: 22})
+      # [%Post{}, ...]
 
   """
-  def create_post(attrs \\ %{}) do
-    %Post{}
-    |> Post.changeset(attrs)
-    |> Repo.insert()
+  @spec list_posts(non_neg_integer() | User.t()) :: [Post.t()]
+  def list_posts(%User{id: id}), do: list_posts(id)
+
+  def list_posts(user_id) do
+    from(p in Post,
+      where: p.user_id == ^user_id
+    )
+    |> Repo.all()
   end
 
-  @doc """
-  Updates a post.
-
-  ## Examples
-
-      iex> update_post(post, %{field: new_value})
-      {:ok, %Post{}}
-
-      iex> update_post(post, %{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def update_post(%Post{} = post, attrs) do
-    post
-    |> Post.changeset(attrs)
-    |> Repo.update()
-  end
-
-  @spec delete_post(%Post{}) :: {:ok, %Post{}} | {:error, %Ecto.Changeset{}}
   @doc """
   Deletes a post.
 
@@ -113,10 +88,17 @@ defmodule BlogBackend.Timeline do
       {:ok, %Post{}}
 
       iex> delete_post(post)
-      {:error, %Ecto.Changeset{}}
+      {:error, :not_found}
 
   """
-  def delete_post(%Post{} = post), do: Repo.delete(post)
+  @spec delete_post(Post.t()) :: {:ok, Post.t()} | {:error, :not_found}
+  def delete_post(post) do
+    try do
+      Repo.delete(post)
+    rescue
+      _ -> {:error, :not_found}
+    end
+  end
 
   @doc """
   Returns an `%Ecto.Changeset{}` for tracking post changes.
@@ -127,11 +109,8 @@ defmodule BlogBackend.Timeline do
       %Ecto.Changeset{data: %Post{}}
 
   """
-  def change_post(%Post{} = post, attrs \\ %{}) do
-    Post.changeset(post, attrs)
-  end
-
-  alias BlogBackend.Timeline.Comment
+  @spec change_post(Post.t(), map) :: Ecto.Changeset.t()
+  def change_post(%Post{} = post, attrs \\ %{}), do: Post.changeset(post, attrs)
 
   @doc """
   Returns the list of comments.

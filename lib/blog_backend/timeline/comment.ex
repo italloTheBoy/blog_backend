@@ -38,7 +38,7 @@ defmodule BlogBackend.Timeline.Comment do
 
   def changeset(comment, attrs \\ %{}) do
     comment
-    |> cast(attrs, [:body, :user_id, :post_id, :comment_id])
+    |> cast(attrs, @permitted_columns )
     |> validate_assocs()
     |> validate_body()
   end
