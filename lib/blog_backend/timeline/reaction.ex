@@ -1,12 +1,11 @@
 defmodule BlogBackend.Timeline.Reaction do
   use Ecto.Schema
 
-  alias BlogBackend.Auth.User
-  alias BlogBackend.Timeline.{Post, Comment}
-
   import Ecto.Changeset
 
-  @permitted_columns [:type, :user_id, :post_id, :comment_id]
+  alias BlogBackend.Timeline.Reaction
+  alias BlogBackend.Auth.User
+  alias BlogBackend.Timeline.{Post, Comment}
 
   schema "reactions" do
     field :type, :string
@@ -18,19 +17,20 @@ defmodule BlogBackend.Timeline.Reaction do
     timestamps()
   end
 
-  @type t :: %__MODULE__{
-          comment: Comment.t(),
-          comment_id: non_neg_integer,
+  @type t() :: %Reaction{
           id: non_neg_integer,
-          post: Post.t(),
+          user_id: non_neg_integer,
           post_id: non_neg_integer,
-          type: String.t(),
+          comment_id: non_neg_integer,
           user: User.t(),
-          user_id: non_neg_integer
+          post: Post.t(),
+          comment: Comment.t(),
+          type: String.t()
         }
 
-  @doc false
+  @permitted_columns [:user_id, :post_id, :comment_id, :type]
 
+  @doc false
   @spec changeset(%__MODULE__{}, map) :: Ecto.Changeset.t()
   def changeset(comment, attrs \\ %{}) do
     comment

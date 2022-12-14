@@ -1,44 +1,44 @@
 defmodule BlogBackend.Timeline.Comment do
   use Ecto.Schema
 
-  alias BlogBackend.Auth.User
-  alias BlogBackend.Timeline.Post
-
   import Ecto.Changeset
 
-  @permitted_columns [:body, :user_id, :post_id, :comment_id]
+  alias BlogBackend.Auth.User
+  alias BlogBackend.Timeline.{Post, Comment, Reaction}
 
   schema "comments" do
     field :body, :string
 
     belongs_to :user, User
     belongs_to :post, Post
-    belongs_to :comment, __MODULE__
+    belongs_to :comment, Comment
 
-    has_many :comments, __MODULE__
+    has_many :comments, Comment
+    has_many :reactions, Reaction
 
     timestamps()
   end
 
-  @type t :: %__MODULE__{
-          body: String.t(),
+  @type t() :: %Comment{
           id: non_neg_integer,
-          post: Post.t(),
           post_id: non_neg_integer,
-          user: User.t(),
           user_id: non_neg_integer,
-          comment: __MODULE__.t(),
           comment_id: non_neg_integer,
+          post: Post.t(),
+          user: User.t(),
+          comment: Comment.t(),
           comments: [t],
+          reactions: [Reaction.t()],
+          body: String.t()
         }
 
+  @permitted_columns [:user_id, :post_id, :comment_id, :body]
+
   @doc false
-
   @spec changeset(%__MODULE__{}, map) :: Ecto.Changeset.t()
-
   def changeset(comment, attrs \\ %{}) do
     comment
-    |> cast(attrs, @permitted_columns )
+    |> cast(attrs, @permitted_columns)
     |> validate_assocs()
     |> validate_body()
   end

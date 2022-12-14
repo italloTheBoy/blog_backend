@@ -15,11 +15,8 @@ defmodule BlogBackend.Timeline.Policy do
     :delete_reaction
   ]
 
-  @spec authorize(
-          atom,
-          User.t(),
-          Post.t() | Comment.t() | Reaction.t()
-        ) :: :ok | :error
+  @spec authorize(atom, User.t(), Post.t() | Comment.t() | Reaction.t()) ::
+          :ok | {:error, :forbidden}
   def authorize(action, %User{}, _params)
       when action in @easy_access_actions,
       do: :ok

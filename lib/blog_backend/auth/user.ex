@@ -4,15 +4,16 @@ defmodule BlogBackend.Auth.User do
   import Ecto.Changeset
 
   alias Argon2
-  alias BlogBackend.Timeline.{Post, Comment}
+  alias BlogBackend.Timeline.{Post, Comment, Reaction}
 
   schema "users" do
     field :email, :string
     field :username, :string
     field :password, :string, redact: true, load_in_query: false
 
-    has_many :posts, Post, on_delete: :delete_all
-    has_many :comments, Comment, on_delete: :delete_all
+    has_many :posts, Post
+    has_many :comments, Comment
+    has_many :reactions, Reaction
 
     timestamps()
   end
@@ -26,14 +27,13 @@ defmodule BlogBackend.Auth.User do
           username: String.t()
         }
 
+  @doc """
+  The BlogBackend.Auth.User changeset function"
+  """
   @spec changeset(
           %__MODULE__{},
           :invalid | %{optional(:__struct__) => none, optional(atom | binary) => any}
         ) :: Ecto.Changeset.t()
-  @doc """
-  The BlogBackend.Auth.User changeset function"
-
-  """
   def changeset(user = %__MODULE__{}, attrs) do
     user
     |> cast(attrs, [:username, :password, :email])
