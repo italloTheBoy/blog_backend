@@ -33,6 +33,9 @@ defmodule BlogBackendWeb.ErrorView do
   def template_not_found(template, _assigns),
     do: %{message: status_message_from_template(template)}
 
+  def template_unprocessable_entity(template, _assigns),
+    do: %{message: status_message_from_template(template)}
+
   def template_internal_server_error(template, _assigns),
     do: %{message: status_message_from_template(template)}
 end

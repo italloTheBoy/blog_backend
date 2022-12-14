@@ -36,6 +36,13 @@ defmodule BlogBackendWeb.FallbackController do
     |> render(:"404")
   end
 
+  def call(conn, {:error, :unprocessable_entity}) do
+    conn
+    |> put_status(422)
+    |> put_view(BlogBackendWeb.ErrorView)
+    |> render(:"422")
+  end
+
   def call(conn, {:error, _}) do
     conn
     |> put_status(500)
