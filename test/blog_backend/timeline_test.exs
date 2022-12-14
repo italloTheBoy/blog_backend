@@ -4,6 +4,8 @@ defmodule BlogBackend.TimelineTest do
   import BlogBackend.AuthFixtures
   import BlogBackend.TimelineFixtures
 
+  alias Ecto.Query.CastError
+  alias BlogBackend.Repo
   alias BlogBackend.Timeline
   alias BlogBackend.Timeline.{Post, Comment, Reaction}
 
@@ -45,20 +47,70 @@ defmodule BlogBackend.TimelineTest do
       assert {:error, :not_found} == Timeline.get_post(11)
     end
 
-    @tag posts: "list_posts"
-    test "list_posts/1 with numeric id returns all user posts" do
-      user = user_fixture()
-      post = post_fixture(%{user_id: user.id})
-
-      assert [%Post{} = post] == Timeline.list_posts(user.id)
+    @tag posts: "get_post"
+    test "get_post/1 with invalid id type raise the app" do
+      assert {:error, :unprocessable_entity} == Timeline.get_post(:invalid)
     end
 
-    @tag posts: "list_posts"
-    test "list_posts/1 with %User{} returns all user posts" do
+    @tag posts: "get_post!"
+    test "get_post!/1 with valid id returns an post" do
+      post = post_fixture()
+
+      assert post == Timeline.get_post!(post.id)
+    end
+
+    @tag posts: "get_post!"
+    test "get_post!/1 with invalid id returns an error" do
+      assert nil == Timeline.get_post!(11)
+    end
+
+    @tag posts: "get_post!"
+    test "get_post!/1 with invalid id type raise the app" do
+      assert %CastError{} = Timeline.get_post!(:invalid) |> catch_error()
+    end
+
+    @tag posts: "count_post_comments"
+    test "count_post_comments/1 with %Post{} returns the number of comments" do
+      post = post_fixture()
+
+      assert 0 == Timeline.count_post_comments(post)
+    end
+
+    @tag posts: "count_post_comments"
+    test "count_post_comments/1 with invalid param raise the app" do
+      assert :function_clause =
+               Timeline.count_post_comments(:invalid)
+               |> catch_error()
+    end
+
+    @tag posts: "count_post_reactions"
+    test "count_post_reactions/1 with %Post{} returns the number of reactions" do
+      post = post_fixture()
+
+      assert 0 == Timeline.count_post_reactions(post)
+    end
+
+    @tag posts: "count_post_reactions"
+    test "count_post_reactions/1 with invalid param raise the app" do
+      assert :function_clause =
+               Timeline.count_post_reactions(:invalid)
+               |> catch_error()
+    end
+
+    @tag posts: "list_user_posts"
+    test "list_user_posts/1 with numeric id returns all user posts" do
       user = user_fixture()
       post = post_fixture(%{user_id: user.id})
 
-      assert [%Post{} = post] == Timeline.list_posts(user)
+      assert [%Post{} = post] == Timeline.list_user_posts(user.id)
+    end
+
+    @tag posts: "list_user_posts"
+    test "list_user_posts/1 with %User{} returns all user posts" do
+      user = user_fixture()
+      post = post_fixture(%{user_id: user.id})
+
+      assert [%Post{} = post] == Timeline.list_user_posts(user)
     end
 
     @tag posts: "delete_post"
@@ -83,7 +135,7 @@ defmodule BlogBackend.TimelineTest do
   end
 
   describe "comments" do
-    @invalid_attrs %{comment: nil}
+    @invalid_attrs %{user_id: nil, post_id: nil, comment_id: nil, body: nil}
 
     test "list_comments/0 returns all comments" do
       comment = comment_fixture()

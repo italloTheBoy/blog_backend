@@ -9,13 +9,10 @@ defmodule BlogBackend.Timeline do
 
   import Ecto.Query, warn: false
 
-  @spec authorize(
-          atom,
-          %User{id: non_neg_integer},
-          %Post{user_id: non_neg_integer}
-          | %Comment{user_id: non_neg_integer}
-          | %Reaction{user_id: non_neg_integer}
-        ) :: :ok | :error
+  #### POST ####
+
+  @spec authorize(atom, User.t(), Post.t() | Comment.t() | Reaction.t()) ::
+          :ok | {:error, :forbidden}
   defdelegate authorize(action, user, params), to: BlogBackend.Timeline.Policy
 
   @doc """
@@ -48,13 +45,70 @@ defmodule BlogBackend.Timeline do
       iex> get_post(11)
       {:error, :not_found}
 
+      iex> get_post(:invalid)
+      {:error, :unprocessable_entity}
+
   """
-  @spec get_post(non_neg_integer()) :: {:ok, Post.t()} | {:error, :not_found}
+  @spec get_post(non_neg_integer()) ::
+          {:ok, Post.t()} | {:error, :not_found | :unprocessable_entity}
   def get_post(id) do
-    case Repo.get(Post, id) do
-      %Post{} = post -> {:ok, post}
-      nil -> {:error, :not_found}
+    try do
+      case Repo.get(Post, id) do
+        %Post{} = post -> {:ok, post}
+        nil -> {:error, :not_found}
+      end
+    rescue
+      _ -> {:error, :unprocessable_entity}
     end
+  end
+
+  @doc """
+  Fetches a single post.
+  If no result was found return nil.
+  If the struct in the queryable has no or more than one primary key, it will raise an argument error.
+
+  ## Examples
+
+      iex> get_post(22)
+      %Post{}
+
+      iex> get_post(11)
+      nil
+
+  """
+  @spec get_post!(non_neg_integer()) :: Post.t() | nil
+  def get_post!(id), do: Repo.get(Post, id)
+
+  @doc """
+  Count a post comments.
+
+  ## Examples
+
+      iex> count_post_comments(%Post{})
+      0
+
+  """
+  @spec count_post_comments(Post.t() | non_neg_integer()) :: non_neg_integer()
+  def count_post_comments(%Post{} = post) do
+    %Post{comments: comments} = Repo.preload(post, :comments)
+
+    length(comments)
+  end
+
+  @doc """
+  Count a post reactions.
+
+  ## Examples
+
+      iex> count_post_reactions(%Post{})
+      0
+
+  """
+  @spec count_post_reactions(Post.t()) :: non_neg_integer()
+  def count_post_reactions(%Post{} = post) do
+    %Post{reactions: reactions} = Repo.preload(post, :reactions)
+
+    length(reactions)
   end
 
   @doc """
@@ -62,17 +116,17 @@ defmodule BlogBackend.Timeline do
 
   ## Examples
 
-      iex> list_posts(22)
+      iex> list_user_posts(22)
       [%Post{}, ...]
 
-      # iex> list_posts(%User{id: 22})
-      # [%Post{}, ...]
+      # iex> list_user_posts(%User{id: 22})
+      [%Post{}, ...]
 
   """
-  @spec list_posts(non_neg_integer() | User.t()) :: [Post.t()]
-  def list_posts(%User{id: id}), do: list_posts(id)
+  @spec list_user_posts(non_neg_integer() | User.t()) :: [Post.t()]
+  def list_user_posts(%User{id: id}), do: list_user_posts(id)
 
-  def list_posts(user_id) do
+  def list_user_posts(user_id) do
     from(p in Post,
       where: p.user_id == ^user_id
     )
@@ -111,6 +165,8 @@ defmodule BlogBackend.Timeline do
   """
   @spec change_post(Post.t(), map) :: Ecto.Changeset.t()
   def change_post(%Post{} = post, attrs \\ %{}), do: Post.changeset(post, attrs)
+
+  #### COMMENT ####
 
   @doc """
   Returns the list of comments.
