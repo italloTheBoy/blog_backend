@@ -2,7 +2,6 @@ defmodule BlogBackend.TimelineFixtures do
   import BlogBackend.AuthFixtures
   import BlogBackend.Timeline
 
-  alias BlogBackend.Repo
   alias BlogBackend.Timeline.{Post, Comment, Reaction}
 
   @moduledoc """
@@ -50,7 +49,7 @@ defmodule BlogBackend.TimelineFixtures do
       })
       |> BlogBackend.Timeline.create_comment()
 
-    Repo.preload(comment, [:user, :post])
+    comment
   end
 
   def comment_fixture(%{father: :comment} = attrs) do
@@ -65,7 +64,7 @@ defmodule BlogBackend.TimelineFixtures do
       })
       |> BlogBackend.Timeline.create_comment()
 
-    Repo.preload(comment, [:user, :comment])
+    comment
   end
 
   @doc """
@@ -90,7 +89,7 @@ defmodule BlogBackend.TimelineFixtures do
       })
       |> BlogBackend.Timeline.create_reaction()
 
-    Repo.preload(reaction, [:user, :post])
+    reaction
   end
 
   def reaction_fixture(%{father: :comment} = attrs) do
@@ -105,6 +104,6 @@ defmodule BlogBackend.TimelineFixtures do
       })
       |> BlogBackend.Timeline.create_reaction()
 
-    Repo.preload(reaction, [:user, :comment])
+    reaction
   end
 end

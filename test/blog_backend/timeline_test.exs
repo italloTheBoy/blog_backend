@@ -224,23 +224,32 @@ defmodule BlogBackend.TimelineTest do
                |> catch_error()
     end
 
-    test "list_comments/0 returns all comments" do
-      comment = comment_fixture()
-      assert Timeline.list_comments() == [comment]
+    @tag comments: "list_post_comments"
+    test "list_post_comments/1 with %Post{} returns all post comments" do
+      %Comment{post_id: post_id} = comment = comment_fixture(%{father: :post})
+
+      post = get_post!(post_id)
+
+      assert [comment] == list_post_comments(post)
     end
 
-    test "update_comment/2 with valid data updates the comment" do
-      comment = comment_fixture()
-      update_attrs = %{comment: "some updated comment"}
-
-      assert {:ok, %Comment{} = comment} = Timeline.update_comment(comment, update_attrs)
-      assert comment.comment == "some updated comment"
+    @tag comments: "list_post_comments"
+    test "list_post_comments/1 with invalid data raise the app" do
+      assert :function_clause == list_post_comments("invalid") |> catch_error()
     end
 
-    test "update_comment/2 with invalid data returns error changeset" do
-      comment = comment_fixture()
-      assert {:error, %Ecto.Changeset{}} = Timeline.update_comment(comment, @invalid_attrs)
-      assert comment == Timeline.get_comment!(comment.id)
+    @tag comments: "list_comment_comments"
+    test "list_comment_comments/1 with %Comment{} returns all post comments" do
+      %Comment{comment_id: father_comment_id} = comment = comment_fixture(%{father: :comment})
+
+      father_comment = get_comment!(father_comment_id)
+
+      assert [comment] == list_comment_comments(father_comment)
+    end
+
+    @tag comments: "list_comment_comments"
+    test "list_comment_comments/1 with invalid data raise the app" do
+      assert :function_clause == list_comment_comments("invalid") |> catch_error()
     end
 
     test "delete_comment/1 deletes the comment" do

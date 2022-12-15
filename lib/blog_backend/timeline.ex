@@ -245,35 +245,35 @@ defmodule BlogBackend.Timeline do
   def get_comment!(id), do: Repo.get!(Comment, id)
 
   @doc """
-  Returns the list of comments.
+  Returns all post comments.
 
   ## Examples
 
-      iex> list_comments()
+      iex> list_post_comments( %Post{})
       [%Comment{}, ...]
 
   """
-  def list_comments do
-    Repo.all(Comment)
+  @spec list_post_comments(Post.t()) :: [Comment.t()]
+  def list_post_comments(%Post{} = post) do
+    post
+    |> Repo.preload([:comments])
+    |> Map.get(:comments)
   end
 
-
   @doc """
-  Updates a comment.
+  Returns all comment comments.
 
   ## Examples
 
-      iex> update_comment(comment, %{field: new_value})
-      {:ok, %Comment{}}
-
-      iex> update_comment(comment, %{field: bad_value})
-      {:error, %Ecto.Changeset{}}
+      iex> list_comment_comments(%Comment{})
+      [%Comment{}, ...]
 
   """
-  def update_comment(%Comment{} = comment, attrs) do
+  @spec list_comment_comments(Comment.t()) :: [Comment.t()]
+  def list_comment_comments(%Comment{} = comment) do
     comment
-    |> Comment.changeset(attrs)
-    |> Repo.update()
+    |> Repo.preload([:comments])
+    |> Map.get(:comments)
   end
 
   @spec delete_comment(%Comment{}) ::
