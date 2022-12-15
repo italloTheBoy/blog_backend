@@ -146,17 +146,11 @@ defmodule BlogBackend.Timeline do
       {:ok, %Post{}}
 
       iex> delete_post(post)
-      {:error, :not_found}
+      {:error, %Ecto.Changeset{}}
 
   """
-  @spec delete_post(Post.t()) :: {:ok, Post.t()} | {:error, :not_found}
-  def delete_post(post) do
-    try do
-      Repo.delete(post)
-    rescue
-      _ -> {:error, :not_found}
-    end
-  end
+  @spec delete_post(Post.t()) :: {:ok, Post.t()}
+  def delete_post(post), do: Repo.delete(post)
 
   @doc """
   Returns an `%Ecto.Changeset{}` for tracking post changes.
@@ -276,8 +270,6 @@ defmodule BlogBackend.Timeline do
     |> Map.get(:comments)
   end
 
-  @spec delete_comment(%Comment{}) ::
-          {:ok, %Comment{}} | {:error, %Ecto.Changeset{}}
   @doc """
   Deletes a comment.
 
@@ -290,9 +282,9 @@ defmodule BlogBackend.Timeline do
       {:error, %Ecto.Changeset{}}
 
   """
-  def delete_comment(%Comment{} = comment) do
-    Repo.delete(comment)
-  end
+  @spec delete_comment(Comment.t()) ::
+          {:ok, %Comment{}} | {:error, %Ecto.Changeset{}}
+  def delete_comment(%Comment{} = comment), do: Repo.delete(comment)
 
   @doc """
   Returns an `%Ecto.Changeset{}` for tracking comment changes.

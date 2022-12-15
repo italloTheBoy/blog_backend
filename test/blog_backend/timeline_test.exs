@@ -119,7 +119,7 @@ defmodule BlogBackend.TimelineTest do
     end
 
     @tag posts: "delete_post"
-    test "delete_post/1 with valid %Post{} deletes the post" do
+    test "delete_post/1 with valid data deletes the post" do
       post = post_fixture()
 
       assert {:ok, %Post{}} = Timeline.delete_post(post)
@@ -127,8 +127,8 @@ defmodule BlogBackend.TimelineTest do
     end
 
     @tag posts: "delete_post"
-    test "delete_post/1 with invalid post return an error" do
-      assert {:error, :not_found} = Timeline.delete_post(nil)
+    test "delete_post/1 with invalid data raise the app" do
+      assert_raise FunctionClauseError, fn -> delete_post("invalid") end
     end
 
     @tag posts: "change_post"
@@ -252,10 +252,17 @@ defmodule BlogBackend.TimelineTest do
       assert :function_clause == list_comment_comments("invalid") |> catch_error()
     end
 
-    test "delete_comment/1 deletes the comment" do
+    @tag comments: "delete_comment"
+    test "delete_comment/1 with valid data deletes the comment" do
       comment = comment_fixture()
-      assert {:ok, %Comment{}} = Timeline.delete_comment(comment)
-      assert_raise Ecto.NoResultsError, fn -> Timeline.get_comment!(comment.id) end
+
+      assert {:ok, %Comment{}} = delete_comment(comment)
+      assert_raise Ecto.NoResultsError, fn -> get_comment!(comment.id) end
+    end
+
+    @tag comments: "delete_comment"
+    test "delete_comment/1 with invalid data raise the app" do
+      assert_raise FunctionClauseError, fn -> delete_comment("invalid") end
     end
 
     test "change_comment/1 returns a comment changeset" do
