@@ -196,6 +196,31 @@ defmodule BlogBackend.Timeline do
   end
 
   @doc """
+  Gets a single comment.
+
+  ## Examples
+
+      iex> get_comment(123)
+      {:ok, %Comment}
+
+      iex> get_comment(456)
+      {:error, :not_found}
+
+  """
+  @spec get_comment(String.t() | pos_integer()) ::
+          {:error, :not_found | :unprocessable_entity} | {:ok, %Comment{}}
+  def get_comment(id) do
+    try do
+      case Repo.get(Comment, id) do
+        %Comment{} = comment -> {:ok, comment}
+        nil -> {:error, :not_found}
+      end
+    rescue
+      _ -> {:error, :unprocessable_entity}
+    end
+  end
+
+  @doc """
   Returns the list of comments.
 
   ## Examples
@@ -223,27 +248,6 @@ defmodule BlogBackend.Timeline do
 
   """
   def get_comment!(id), do: Repo.get!(Comment, id)
-
-  @spec get_comment(String.t() | pos_integer()) ::
-          {:error, :not_found} | {:ok, %Comment{}}
-  @doc """
-  Gets a single comment.
-
-  ## Examples
-
-      iex> get_comment(123)
-      {:ok, %Comment}
-
-      iex> get_comment(456)
-      {:error, :not_found}
-
-  """
-  def get_comment(id) do
-    case Repo.get(Comment, id) do
-      %Comment{} = comment -> {:ok, comment}
-      nil -> {:error, :not_found}
-    end
-  end
 
   @doc """
   Updates a comment.

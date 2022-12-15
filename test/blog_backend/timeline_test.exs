@@ -49,7 +49,7 @@ defmodule BlogBackend.TimelineTest do
     end
 
     @tag posts: "get_post"
-    test "get_post/1 with invalid id type raise the app" do
+    test "get_post/1 with invalid id type returns an error" do
       assert {:error, :unprocessable_entity} == Timeline.get_post(:invalid)
     end
 
@@ -181,6 +181,23 @@ defmodule BlogBackend.TimelineTest do
     test "create_comment/1 with invalid data type returns error" do
       assert {:error, :unprocessable_entity} = Timeline.create_comment("invalid")
     end
+
+    @tag comments: "get_comment"
+    test "get_comment/1 with valid id returns an comment" do
+      comment = comment_fixture()
+
+      assert {:ok, comment} == get_comment(comment.id)
+    end
+
+    @tag comments: "get_comment"
+    test "get_comment/1 with id who doesnt have a comment returns an error" do
+      assert {:error, :not_found} == get_comment(11)
+    end
+
+    @tag comments: "get_comment"
+    test "get_comment/1 with invalid id type returns an error" do
+      assert {:error, :unprocessable_entity} == get_comment("invalid")
+    end 
 
     test "list_comments/0 returns all comments" do
       comment = comment_fixture()
