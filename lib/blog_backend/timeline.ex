@@ -64,20 +64,24 @@ defmodule BlogBackend.Timeline do
 
   @doc """
   Fetches a single post.
-  If no result was found return nil.
-  If the struct in the queryable has no or more than one primary key, it will raise an argument error.
+  Raises `Ecto.NoResultsError` if the post does not exist.
+  Raises `Ecto.Query.CastError` if id type is invalid.
+
 
   ## Examples
 
-      iex> get_post(22)
+      iex> get_post!(22)
       %Post{}
 
-      iex> get_post(11)
-      nil
+      iex> get_post!(456)
+      ** (Ecto.NoResultsError)
+
+      iex> get_post!("invalid")
+      ** (Ecto.Query.CastError)
 
   """
   @spec get_post!(non_neg_integer()) :: Post.t() | nil
-  def get_post!(id), do: Repo.get(Post, id)
+  def get_post!(id), do: Repo.get!(Post, id)
 
   @doc """
   Count a post comments.
@@ -207,7 +211,7 @@ defmodule BlogBackend.Timeline do
       {:error, :not_found}
 
   """
-  @spec get_comment(String.t() | pos_integer()) ::
+  @spec get_comment(non_neg_integer()) ::
           {:error, :not_found | :unprocessable_entity} | {:ok, %Comment{}}
   def get_comment(id) do
     try do
@@ -219,6 +223,26 @@ defmodule BlogBackend.Timeline do
       _ -> {:error, :unprocessable_entity}
     end
   end
+
+  @doc """
+  Gets a single comment.
+  Raises `Ecto.NoResultsError` if the Comment does not exist.
+  Raises `Ecto.Query.CastError` if id type is invalid.
+
+  ## Examples
+
+      iex> get_comment!(123)
+      %Comment{}
+
+      iex> get_comment!(456)
+      ** (Ecto.NoResultsError)
+
+      iex> get_comment!("invalid")
+      ** (Ecto.Query.CastError)
+
+  """
+  @spec get_comment!(non_neg_integer()) :: Comment.t() | nil
+  def get_comment!(id), do: Repo.get!(Comment, id)
 
   @doc """
   Returns the list of comments.
@@ -233,21 +257,6 @@ defmodule BlogBackend.Timeline do
     Repo.all(Comment)
   end
 
-  @doc """
-  Gets a single comment.
-
-  Raises `Ecto.NoResultsError` if the Comment does not exist.
-
-  ## Examples
-
-      iex> get_comment!(123)
-      %Comment{}
-
-      iex> get_comment!(456)
-      ** (Ecto.NoResultsError)
-
-  """
-  def get_comment!(id), do: Repo.get!(Comment, id)
 
   @doc """
   Updates a comment.

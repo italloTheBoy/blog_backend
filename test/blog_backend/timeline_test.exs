@@ -62,12 +62,16 @@ defmodule BlogBackend.TimelineTest do
 
     @tag posts: "get_post!"
     test "get_post!/1 with invalid id returns an error" do
-      assert nil == Timeline.get_post!(11)
+      assert %Ecto.NoResultsError{} =
+               get_post!(11)
+               |> catch_error()
     end
 
     @tag posts: "get_post!"
     test "get_post!/1 with invalid id type raise the app" do
-      assert %CastError{} = Timeline.get_post!(:invalid) |> catch_error()
+      assert %CastError{} =
+               get_post!(:invalid)
+               |> catch_error()
     end
 
     @tag posts: "count_post_comments"
@@ -197,16 +201,32 @@ defmodule BlogBackend.TimelineTest do
     @tag comments: "get_comment"
     test "get_comment/1 with invalid id type returns an error" do
       assert {:error, :unprocessable_entity} == get_comment("invalid")
-    end 
+    end
+
+    @tag comments: "get_comment!"
+    test "get_comment!/1 returns the comment with given id" do
+      comment = comment_fixture()
+
+      assert comment == get_comment!(comment.id)
+    end
+
+    @tag comments: "get_comment!"
+    test "get_comment!/1 with id case any comment de found returns an error" do
+      assert %Ecto.NoResultsError{} =
+               get_comment!(11)
+               |> catch_error()
+    end
+
+    @tag comments: "get_comment!"
+    test "get_comment!/1 with invalid id type raise the app" do
+      assert %CastError{} =
+               get_comment!(:invalid)
+               |> catch_error()
+    end
 
     test "list_comments/0 returns all comments" do
       comment = comment_fixture()
       assert Timeline.list_comments() == [comment]
-    end
-
-    test "get_comment!/1 returns the comment with given id" do
-      comment = comment_fixture()
-      assert Timeline.get_comment!(comment.id) == comment
     end
 
     test "update_comment/2 with valid data updates the comment" do
