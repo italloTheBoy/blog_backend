@@ -265,8 +265,10 @@ defmodule BlogBackend.TimelineTest do
       assert_raise FunctionClauseError, fn -> delete_comment("invalid") end
     end
 
+    @tag comments: "change_comment"
     test "change_comment/1 returns a comment changeset" do
       comment = comment_fixture()
+      
       assert %Ecto.Changeset{} = Timeline.change_comment(comment)
     end
   end

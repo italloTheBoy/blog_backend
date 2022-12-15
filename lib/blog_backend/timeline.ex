@@ -295,11 +295,10 @@ defmodule BlogBackend.Timeline do
       %Ecto.Changeset{data: %Comment{}}
 
   """
-  def change_comment(%Comment{} = comment, attrs \\ %{}) do
-    Comment.changeset(comment, attrs)
-  end
+  @spec change_comment(Comment.t(), map) :: Ecto.Changeset.t()
+  def change_comment(%Comment{} = comment, attrs \\ %{}), do: Comment.changeset(comment, attrs)
 
-  alias BlogBackend.Timeline.Reaction
+  #### REACTION ####
 
   @doc """
   Returns the list of reactions.
