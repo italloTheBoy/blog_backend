@@ -15,12 +15,14 @@ defmodule BlogBackend.TimelineFixtures do
   """
   @spec post_fixture(map) :: Post.t()
   def post_fixture(attrs \\ %{}) do
+    user = user_fixture()
+
     {:ok, post} =
       attrs
       |> Enum.into(%{
         body: "some text",
         title: "some title",
-        user_id: user_fixture().id
+        user_id: user.id
       })
       |> create_post()
 
@@ -37,15 +39,14 @@ defmodule BlogBackend.TimelineFixtures do
   def comment_fixture(attrs \\ %{father: :post})
 
   def comment_fixture(%{father: :post} = attrs) do
-    user = user_fixture()
-    post = post_fixture()
+    %Post{id: post_id, user_id: user_id} = post_fixture()
 
-    {:ok, %Comment{} = comment} =
+    {:ok, comment} =
       attrs
       |> Enum.into(%{
         body: "some body",
-        user_id: user.id,
-        post_id: post.id
+        user_id: user_id,
+        post_id: post_id
       })
       |> BlogBackend.Timeline.create_comment()
 
@@ -58,7 +59,7 @@ defmodule BlogBackend.TimelineFixtures do
     {:ok, comment} =
       attrs
       |> Enum.into(%{
-        type: "like",
+        body: "some body",
         user_id: user_id,
         comment_id: comment_id
       })

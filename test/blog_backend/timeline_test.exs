@@ -1,6 +1,7 @@
 defmodule BlogBackend.TimelineTest do
   use BlogBackend.DataCase, async: true
 
+  import BlogBackend.Timeline
   import BlogBackend.AuthFixtures
   import BlogBackend.TimelineFixtures
 
@@ -137,6 +138,50 @@ defmodule BlogBackend.TimelineTest do
   describe "comments" do
     @invalid_attrs %{user_id: nil, post_id: nil, comment_id: nil, body: nil}
 
+    @tag comments: "create_comment"
+    test "create_comment/1 with valid data whem father is :post, comment a post" do
+      %Post{user_id: user_id, id: post_id} = post_fixture()
+
+      valid_attrs = %{
+        body: "some comment",
+        father: :post,
+        user_id: user_id,
+        post_id: post_id
+      }
+
+      assert {:ok, %Comment{} = comment} = Timeline.create_comment(valid_attrs)
+      assert comment.body == valid_attrs.body
+      assert comment.user_id == user_id
+      assert comment.post_id == post_id
+    end
+
+    @tag comments: "create_comment"
+    test "create_comment/1 with valid data whem father is :comment, comment other comment" do
+      %Comment{user_id: user_id, id: comment_id} = comment_fixture()
+
+      valid_attrs = %{
+        body: "some comment",
+        father: :comment,
+        user_id: user_id,
+        comment_id: comment_id
+      }
+
+      assert {:ok, %Comment{} = comment} = Timeline.create_comment(valid_attrs)
+      assert comment.body == valid_attrs.body
+      assert comment.user_id == user_id
+      assert comment.comment_id == comment_id
+    end
+
+    @tag comments: "create_comment"
+    test "create_comment/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = Timeline.create_comment(@invalid_attrs)
+    end
+
+    @tag comments: "create_comment"
+    test "create_comment/1 with invalid data type returns error" do
+      assert {:error, :unprocessable_entity} = Timeline.create_comment("invalid")
+    end
+
     test "list_comments/0 returns all comments" do
       comment = comment_fixture()
       assert Timeline.list_comments() == [comment]
@@ -145,17 +190,6 @@ defmodule BlogBackend.TimelineTest do
     test "get_comment!/1 returns the comment with given id" do
       comment = comment_fixture()
       assert Timeline.get_comment!(comment.id) == comment
-    end
-
-    test "create_comment/1 with valid data creates a comment" do
-      valid_attrs = %{comment: "some comment"}
-
-      assert {:ok, %Comment{} = comment} = Timeline.create_comment(valid_attrs)
-      assert comment.comment == "some comment"
-    end
-
-    test "create_comment/1 with invalid data returns error changeset" do
-      assert {:error, %Ecto.Changeset{}} = Timeline.create_comment(@invalid_attrs)
     end
 
     test "update_comment/2 with valid data updates the comment" do

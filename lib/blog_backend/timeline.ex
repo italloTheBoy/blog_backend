@@ -169,6 +169,33 @@ defmodule BlogBackend.Timeline do
   #### COMMENT ####
 
   @doc """
+  Creates a comment.
+
+  ## Examples
+
+      iex> create_comment(%{field: value})
+      {:ok, %Comment{}}
+
+      iex> create_comment(%{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+      iex> create_comment("invalid")
+      {:error, :unprocessable_entity}
+
+  """
+  @spec create_comment(map) ::
+          {:ok, Comment.t()} | {:error, Ecto.Changeset.t() | :unprocessable_entity}
+  def create_comment(attrs \\ %{}) do
+    try do
+      %Comment{}
+      |> Comment.changeset(attrs)
+      |> Repo.insert()
+    rescue
+      _ -> {:error, :unprocessable_entity}
+    end
+  end
+
+  @doc """
   Returns the list of comments.
 
   ## Examples
@@ -216,24 +243,6 @@ defmodule BlogBackend.Timeline do
       %Comment{} = comment -> {:ok, comment}
       nil -> {:error, :not_found}
     end
-  end
-
-  @doc """
-  Creates a comment.
-
-  ## Examples
-
-      iex> create_comment(%{field: value})
-      {:ok, %Comment{}}
-
-      iex> create_comment(%{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def create_comment(attrs \\ %{}) do
-    %Comment{}
-    |> Comment.changeset(attrs)
-    |> Repo.insert()
   end
 
   @doc """
