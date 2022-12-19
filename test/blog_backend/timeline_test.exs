@@ -1,12 +1,15 @@
 defmodule BlogBackend.TimelineTest do
   use BlogBackend.DataCase, async: true
 
-  import BlogBackend.Timeline
+  import BlogBackend.{Auth, Timeline}
   import BlogBackend.AuthFixtures
   import BlogBackend.TimelineFixtures
 
-  alias Ecto.Query.CastError
+  alias Ecto.NoResultsError
+  alias Ecto.CastError
   alias BlogBackend.Repo
+  alias BlogBackend.Auth
+  alias BlogBackend.Auth.User
   alias BlogBackend.Timeline
   alias BlogBackend.Timeline.{Post, Comment, Reaction}
 
@@ -72,50 +75,6 @@ defmodule BlogBackend.TimelineTest do
       assert %CastError{} =
                get_post!(:invalid)
                |> catch_error()
-    end
-
-    @tag posts: "count_post_comments"
-    test "count_post_comments/1 with %Post{} returns the number of comments" do
-      post = post_fixture()
-
-      assert 0 == Timeline.count_post_comments(post)
-    end
-
-    @tag posts: "count_post_comments"
-    test "count_post_comments/1 with invalid param raise the app" do
-      assert :function_clause =
-               Timeline.count_post_comments(:invalid)
-               |> catch_error()
-    end
-
-    @tag posts: "count_post_reactions"
-    test "count_post_reactions/1 with %Post{} returns the number of reactions" do
-      post = post_fixture()
-
-      assert 0 == Timeline.count_post_reactions(post)
-    end
-
-    @tag posts: "count_post_reactions"
-    test "count_post_reactions/1 with invalid param raise the app" do
-      assert :function_clause =
-               Timeline.count_post_reactions(:invalid)
-               |> catch_error()
-    end
-
-    @tag posts: "list_user_posts"
-    test "list_user_posts/1 with numeric id returns all user posts" do
-      user = user_fixture()
-      post = post_fixture(%{user_id: user.id})
-
-      assert [%Post{} = post] == Timeline.list_user_posts(user.id)
-    end
-
-    @tag posts: "list_user_posts"
-    test "list_user_posts/1 with %User{} returns all user posts" do
-      user = user_fixture()
-      post = post_fixture(%{user_id: user.id})
-
-      assert [%Post{} = post] == Timeline.list_user_posts(user)
     end
 
     @tag posts: "delete_post"
@@ -224,20 +183,6 @@ defmodule BlogBackend.TimelineTest do
                |> catch_error()
     end
 
-    @tag comments: "list_post_comments"
-    test "list_post_comments/1 with %Post{} returns all post comments" do
-      %Comment{post_id: post_id} = comment = comment_fixture(%{father: :post})
-
-      post = get_post!(post_id)
-
-      assert [comment] == list_post_comments(post)
-    end
-
-    @tag comments: "list_post_comments"
-    test "list_post_comments/1 with invalid data raise the app" do
-      assert :function_clause == list_post_comments("invalid") |> catch_error()
-    end
-
     @tag comments: "list_comment_comments"
     test "list_comment_comments/1 with %Comment{} returns all post comments" do
       %Comment{comment_id: father_comment_id} = comment = comment_fixture(%{father: :comment})
@@ -268,58 +213,249 @@ defmodule BlogBackend.TimelineTest do
     @tag comments: "change_comment"
     test "change_comment/1 returns a comment changeset" do
       comment = comment_fixture()
-      
+
       assert %Ecto.Changeset{} = Timeline.change_comment(comment)
     end
   end
 
   describe "reactions" do
-    @invalid_attrs %{type: nil}
+    @invalid_attrs %{user_id: nil, post_id: nil, comment_id: nil, type: nil}
 
-    test "list_reactions/0 returns all reactions" do
-      reaction = reaction_fixture()
-      assert Timeline.list_reactions() == [reaction]
-    end
+    @tag reactions: "create_reaction"
+    test "create_reaction/1 with valid data when father is a post, react a post" do
+      %Post{id: post_id, user_id: user_id} = post_fixture()
 
-    test "get_reaction!/1 returns the reaction with given id" do
-      reaction = reaction_fixture()
-      assert Timeline.get_reaction!(reaction.id) == reaction
-    end
-
-    test "create_reaction/1 with valid data creates a reaction" do
-      valid_attrs = %{type: "some type"}
+      valid_attrs = %{
+        type: "like",
+        user_id: user_id,
+        post_id: post_id
+      }
 
       assert {:ok, %Reaction{} = reaction} = Timeline.create_reaction(valid_attrs)
-      assert reaction.type == "some type"
+      assert reaction.type == "like"
+      assert reaction.user_id == user_id
+      assert reaction.post_id == post_id
     end
 
+    @tag reactions: "create_reaction"
+    test "create_reaction/1 with valid data when father is a comment, react a comment" do
+      %Comment{id: comment_id, user_id: user_id} = comment_fixture()
+
+      valid_attrs = %{
+        type: "like",
+        user_id: user_id,
+        comment_id: comment_id
+      }
+
+      assert {:ok, %Reaction{} = reaction} = Timeline.create_reaction(valid_attrs)
+      assert reaction.type == "like"
+      assert reaction.user_id == user_id
+      assert reaction.comment_id == comment_id
+    end
+
+    @tag reactions: "create_reaction"
     test "create_reaction/1 with invalid data returns error changeset" do
       assert {:error, %Ecto.Changeset{}} = Timeline.create_reaction(@invalid_attrs)
     end
 
-    test "update_reaction/2 with valid data updates the reaction" do
-      reaction = reaction_fixture()
-      update_attrs = %{type: "some updated type"}
-
-      assert {:ok, %Reaction{} = reaction} = Timeline.update_reaction(reaction, update_attrs)
-      assert reaction.type == "some updated type"
+    @tag reactions: "create_reaction"
+    test "create_reaction/1 with invalid data typ raise the app" do
+      assert_raise CastError, fn -> create_reaction("invalid") end
     end
 
-    test "update_reaction/2 with invalid data returns error changeset" do
-      reaction = reaction_fixture()
-      assert {:error, %Ecto.Changeset{}} = Timeline.update_reaction(reaction, @invalid_attrs)
-      assert reaction == Timeline.get_reaction!(reaction.id)
+    @tag reactions: "get_reaction"
+    test "get_reaction/1 with existing id fethes an reaction" do
+      %Reaction{} = reaction = reaction_fixture()
+
+      assert {:ok, reaction} == get_reaction(reaction.id)
     end
 
-    test "delete_reaction/1 deletes the reaction" do
+    @tag reactions: "get_reaction"
+    test "get_reaction/1 with nonexistent id returns an not found error" do
+      %Reaction{} = reaction = reaction_fixture()
+
+      delete_reaction(reaction)
+
+      assert {:error, :not_found} == get_reaction(reaction.id)
+    end
+
+    @tag reactions: "get_reaction"
+    test "get_reaction/1 with invalid id returns an error" do
+      assert_raise ArgumentError, fn -> get_reaction(nil) end
+    end
+
+    @tag reactions: "get_reaction!"
+    test "get_reaction!/1 with existing id fethes an reaction" do
+      %Reaction{} = reaction = reaction_fixture()
+
+      assert reaction == get_reaction!(reaction.id)
+    end
+
+    @tag reactions: "get_reaction!"
+    test "get_reaction!/1 with nonexistent id raise the app" do
+      %Reaction{} = reaction = reaction_fixture()
+
+      delete_reaction(reaction)
+
+      assert_raise NoResultsError, fn -> get_reaction!(reaction.id) end
+    end
+
+    @tag reactions: "get_reaction!"
+    test "get_reaction!/1 with invalid id raise the app" do
+      assert_raise ArgumentError, fn -> get_reaction!(nil) end
+    end
+
+    @tag reactions: "toggle_reaction_type"
+    test "toggle_reaction_type/1 with valid %Reaction{} toggle reaction type" do
+      reaction = reaction_fixture(%{type: "like", father: :post})
+
+      assert {:ok, %Reaction{type: "dislike"}} = toggle_reaction_type(reaction)
+      assert %Reaction{type: "dislike"} = get_reaction!(reaction.id)
+    end
+
+    @tag reactions: "toggle_reaction_type"
+    test "toggle_reaction_type/1 with %Reaction{} when type is invalid toggle reaction type" do
+      reaction = reaction_fixture(%{type: "like", father: :post})
+
+      invalid_reaction = %{reaction | type: "invalid_like"}
+
+      assert {:error, %Ecto.Changeset{}} = toggle_reaction_type(invalid_reaction)
+    end
+
+    @tag reactions: "toggle_reaction_type"
+    test "toggle_reaction_type/1 with invalid data raise the app" do
+      assert_raise FunctionClauseError, fn -> toggle_reaction_type(nil) end
+    end
+
+    @tag reactions: "delete_reaction"
+    test "delete_reaction/1 with %Reaction{} deletes the reaction" do
       reaction = reaction_fixture()
+
       assert {:ok, %Reaction{}} = Timeline.delete_reaction(reaction)
       assert_raise Ecto.NoResultsError, fn -> Timeline.get_reaction!(reaction.id) end
     end
 
-    test "change_reaction/1 returns a reaction changeset" do
+    @tag reactions: "delete_reaction"
+    test "delete_reaction/1 with invalid data raise the app" do
+      assert_raise ArgumentError, fn -> Timeline.get_reaction!(nil) end
+    end
+
+    @tag reactions: "change_reaction"
+    test "change_reaction/2 returns a reaction changeset" do
       reaction = reaction_fixture()
       assert %Ecto.Changeset{} = Timeline.change_reaction(reaction)
+    end
+  end
+
+  describe "users_posts" do
+    @tag users_posts: "list_user_posts"
+    test "list_user_posts/1 with numeric id returns all user posts" do
+      user = user_fixture()
+      post = post_fixture(%{user_id: user.id})
+
+      assert [%Post{} = post] == Timeline.list_user_posts(user.id)
+    end
+
+    @tag users_posts: "list_user_posts"
+    test "list_user_posts/1 with %User{} returns all user posts" do
+      user = user_fixture()
+      post = post_fixture(%{user_id: user.id})
+
+      assert [%Post{} = post] == Timeline.list_user_posts(user)
+    end
+  end
+
+  describe "users_comments" do
+    @tag users_comments: "list_user_comments"
+    test "list_user_comments/1 with %User{} returns all user comments" do
+      %Comment{user_id: user_id} = comment = comment_fixture()
+
+      %User{} = user = Auth.get_user!(user_id)
+
+      assert [comment] = list_user_comments(user)
+    end
+
+    @tag users_comments: "list_user_comments"
+    test "list_user_comments/1 with invalid data raise the app" do
+      assert_raise FunctionClauseError, fn -> list_user_comments(nil) end
+    end
+  end
+
+  describe "users_reactions" do
+    @tag users_reactions: "list_user_reactions"
+    test "list_user_reactions/1 with valid user returns all user reactions" do
+      %Reaction{user_id: user_id} = reaction = reaction_fixture()
+
+      %User{} = user = get_user!(user_id)
+
+      assert [reaction] = list_user_reactions(user)
+    end
+
+    @tag users_reactions: "list_user_reactions"
+    test "list_user_reactions/1 invalid user raise the app" do
+      assert_raise FunctionClauseError, fn -> list_user_reactions(nil) end
+    end
+  end
+
+  describe "posts_comments" do
+    @tag posts_comments: "count_post_comments"
+    test "count_post_comments/1 with %Post{} returns the number of comments" do
+      post = post_fixture()
+
+      assert 0 == Timeline.count_post_comments(post)
+    end
+
+    @tag posts_comments: "count_post_comments"
+    test "count_post_comments/1 with invalid param raise the app" do
+      assert :function_clause =
+               Timeline.count_post_comments(:invalid)
+               |> catch_error()
+    end
+
+    @tag posts_comments: "list_post_comments"
+    test "list_post_comments/1 with %Post{} returns all post comments" do
+      %Comment{post_id: post_id} = comment = comment_fixture(%{father: :post})
+
+      post = get_post!(post_id)
+
+      assert [comment] == list_post_comments(post)
+    end
+
+    @tag posts_comments: "list_post_comments"
+    test "list_post_comments/1 with invalid data raise the app" do
+      assert :function_clause == list_post_comments("invalid") |> catch_error()
+    end
+  end
+
+  describe "posts_reactions" do
+    @tag posts_reactions: "count_post_reactions"
+    test "count_post_reactions/1 with %Post{} returns the number of reactions" do
+      post = post_fixture()
+
+      assert 0 == Timeline.count_post_reactions(post)
+    end
+
+    @tag posts_reactions: "count_post_reactions"
+    test "count_post_reactions/1 with invalid param raise the app" do
+      assert :function_clause =
+               Timeline.count_post_reactions(:invalid)
+               |> catch_error()
+    end
+  end
+
+  describe "comments_reactions" do
+    @tag comments_reactions: "count_comment_reactions"
+    test "count_comment_reactions/1 with valid %Comment{} count her reactions" do
+      %Reaction{comment_id: comment_id} = reaction_fixture(%{father: :comment})
+
+      %Comment{} = comment = get_comment!(comment_id)
+
+      assert 1 == count_comment_reactions(comment)
+    end
+
+    @tag comments_reactions: "count_comment_reactions"
+    test "count_comment_reactions/1 with invalid data raise the app" do
+      assert_raise FunctionClauseError, fn -> count_comment_reactions(nil) end
     end
   end
 end

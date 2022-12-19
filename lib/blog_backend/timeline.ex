@@ -238,6 +238,38 @@ defmodule BlogBackend.Timeline do
   @spec get_comment!(non_neg_integer()) :: Comment.t() | nil
   def get_comment!(id), do: Repo.get!(Comment, id)
 
+  @spec count_comment_reactions(Comment.t()) :: non_neg_integer()
+  @doc """
+  Count a comment reactions.
+
+  ## Examples
+
+      iex> count_comment_reactions(%Commet{})
+      0
+
+  """
+  def count_comment_reactions(%Comment{} = comment) do
+    %Comment{reactions: reactions} = Repo.preload(comment, :reactions)
+
+    length(reactions)
+  end
+
+  @spec list_user_comments(User.t()) :: [Comment.t()]
+  @doc """
+  Returns all user comments.
+
+  ## Examples
+
+      iex> list_user_comments(%User{})
+      [%Comment{}, ...]
+
+  """
+  def list_user_comments(%User{} = user) do
+    user
+    |> Repo.preload([:comments])
+    |> Map.get(:comments)
+  end
+
   @doc """
   Returns all post comments.
 
@@ -300,37 +332,26 @@ defmodule BlogBackend.Timeline do
 
   #### REACTION ####
 
+  @spec create_reaction(map) :: {:ok, Reaction.t()} | {:error, Ecto.Changeset.t()}
   @doc """
-  Returns the list of reactions.
+  Creates a reaction.
 
   ## Examples
 
-      iex> list_reactions()
-      [%Reaction{}, ...]
+      iex> create_reaction(%{field: value})
+      {:ok, %Reaction{}}
+
+      iex> create_reaction(%{field: bad_value})
+      {:error, %Ecto.Changeset{}}
 
   """
-  def list_reactions do
-    Repo.all(Reaction)
+  def create_reaction(attrs \\ %{}) do
+    %Reaction{}
+    |> Reaction.changeset(attrs)
+    |> Repo.insert()
   end
 
-  @doc """
-  Gets a single reaction.
-
-  Raises `Ecto.NoResultsError` if the Reaction does not exist.
-
-  ## Examples
-
-      iex> get_reaction!(123)
-      %Reaction{}
-
-      iex> get_reaction!(456)
-      ** (Ecto.NoResultsError)
-
-  """
-  def get_reaction!(id), do: Repo.get!(Reaction, id)
-
-  @spec get_reaction(String.t() | pos_integer()) ::
-          {:error, :not_found} | {:ok, %Reaction{}}
+  @spec get_reaction(non_neg_integer()) :: {:error, :not_found} | {:ok, %Reaction{}}
   @doc """
   Gets a single reaction.
 
@@ -350,42 +371,40 @@ defmodule BlogBackend.Timeline do
     end
   end
 
+  @spec get_reaction!(non_neg_integer()) :: Reaction.t()
   @doc """
-  Creates a reaction.
+  Gets a single reaction.
+
+  Raises `Ecto.NoResultsError` if the Reaction does not exist.
 
   ## Examples
 
-      iex> create_reaction(%{field: value})
-      {:ok, %Reaction{}}
+      iex> get_reaction!(123)
+      %Reaction{}
 
-      iex> create_reaction(%{field: bad_value})
-      {:error, %Ecto.Changeset{}}
+      iex> get_reaction!(456)
+      ** (Ecto.NoResultsError)
 
   """
-  def create_reaction(attrs \\ %{}) do
-    %Reaction{}
-    |> Reaction.changeset(attrs)
-    |> Repo.insert()
-  end
+  def get_reaction!(id), do: Repo.get!(Reaction, id)
 
+  @spec list_user_reactions(User.t()) :: [Reaction.t()]
   @doc """
-  Updates a reaction.
+  Returns all user reactions.
 
   ## Examples
 
-      iex> update_reaction(reaction, %{field: new_value})
-      {:ok, %Reaction{}}
-
-      iex> update_reaction(reaction, %{field: bad_value})
-      {:error, %Ecto.Changeset{}}
+      iex> list_user_reactions(%User{})
+      [%Reaction{}, ...]
 
   """
-  def update_reaction(%Reaction{} = reaction, attrs) do
-    reaction
-    |> Reaction.changeset(attrs)
-    |> Repo.update()
+  def list_user_reactions(%User{} = user) do
+    user
+    |> Repo.preload([:reactions])
+    |> Map.get(:reactions)
   end
 
+  @spec toggle_reaction_type(Reaction.t()) :: {:ok, Reaction.t()} | {:error, Ecto.Changeset.t()}
   @doc """
   Toggle reaction type.
 
@@ -401,10 +420,6 @@ defmodule BlogBackend.Timeline do
       {:error, %Ecto.Changeset{}}
 
   """
-
-  @spec toggle_reaction_type(%Reaction{type: String.t()}) ::
-          {:ok, %Reaction{}} | {:error, %Ecto.Changeset{}}
-
   def toggle_reaction_type(%Reaction{type: "like"} = reaction) do
     reaction
     |> Reaction.changeset(%{type: "dislike"})
@@ -417,8 +432,10 @@ defmodule BlogBackend.Timeline do
     |> Repo.update()
   end
 
-  def toggle_reaction_type(reaction), do: {:error, Reaction.changeset(reaction, %{})}
+  def toggle_reaction_type(%Reaction{} = reaction),
+    do: {:error, Reaction.changeset(reaction, %{})}
 
+  @spec delete_reaction(Reaction.t()) :: {:ok, Reaction.t()} | {:error, Ecto.Changeset.t()}
   @doc """
   Deletes a reaction.
 
@@ -435,6 +452,7 @@ defmodule BlogBackend.Timeline do
     Repo.delete(reaction)
   end
 
+  @spec change_reaction(Reaction.t(), map) :: Ecto.Changeset.t()
   @doc """
   Returns an `%Ecto.Changeset{}` for tracking reaction changes.
 

@@ -93,14 +93,15 @@ defmodule BlogBackend.TimelineFixtures do
   end
 
   def reaction_fixture(%{father: :comment} = attrs) do
-    %Reaction{id: reaction_id, user_id: user_id} = reaction_fixture()
+    %Comment{id: comment_id, user_id:  user_id} = comment_fixture()
+
 
     {:ok, %Reaction{} = reaction} =
       attrs
       |> Enum.into(%{
         type: "like",
         user_id: user_id,
-        reaction_id: reaction_id
+        comment_id: comment_id
       })
       |> BlogBackend.Timeline.create_reaction()
 
