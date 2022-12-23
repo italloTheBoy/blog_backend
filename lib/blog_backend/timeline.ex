@@ -9,11 +9,11 @@ defmodule BlogBackend.Timeline do
 
   import Ecto.Query, warn: false
 
-  #### POST ####
-
-  @spec authorize(atom, User.t(), Post.t() | Comment.t() | Reaction.t()) ::
+  @spec authorize(atom, User.t(), nil | Post.t() | Comment.t() | Reaction.t()) ::
           :ok | {:error, :forbidden}
   defdelegate authorize(action, user, params), to: BlogBackend.Timeline.Policy
+
+  #### POST ####
 
   @doc """
   Creates a post.

@@ -37,7 +37,8 @@ config :logger, :console,
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 
-config :blog_backend, BlogBackend.Auth.Guardian,
+# Guardian config
+config :blog_backend, BlogBackend.Guardian,
   issuer: "blog_backend",
   secret_key: System.get_env("SECRET_KEY")
 

@@ -1,38 +1,30 @@
 defmodule BlogBackendWeb.Router do
   use BlogBackendWeb, :router
 
+  alias BlogBackend.Guardian
+
   pipeline :api do
     plug :accepts, ["json"]
   end
 
-  pipeline :maybe_auth do
-    plug BlogBackend.Auth.Pipeline.MaybeAuth
-  end
-
-  pipeline :ensure_auth do
-    plug BlogBackend.Auth.Pipeline.EnsureAuth
-  end
-
-  pipeline :ensure_not_auth do
-    plug BlogBackend.Auth.Pipeline.EnsureNotAuth
-  end
-
-  pipeline :put_current_user do
-    plug BlogBackend.Auth.Pipeline.PutCurrentUser
-  end
-
   scope "/api", BlogBackendWeb do
-    pipe_through [:api, :maybe_auth, :ensure_not_auth]
+    pipe_through [:api, Guardian.Pipeline.EnsureNotAuth]
 
     post "/login", AuthController, :login
 
-    resources "/users", UserController, only: [:create, :show]
+    resources "/users", UserController, only: [:create]
+  end
+
+    scope "/api", BlogBackendWeb do
+    pipe_through [:api, Guardian.Pipeline.MaybeAuth]
+
+    resources "/users", UserController, only: [:show]
     resources "/posts", PostController, only: [:show]
     resources "/comments", CommentController, only: [:show]
   end
 
   scope "/api", BlogBackendWeb do
-    pipe_through [:api, :maybe_auth, :ensure_auth, :put_current_user]
+    pipe_through [:api, Guardian.Pipeline.EnsureAuth]
 
     resources "/users", UserController, only: [:update, :delete]
 

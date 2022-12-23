@@ -2,7 +2,8 @@ defmodule BlogBackendWeb.AuthController do
   use BlogBackendWeb, :controller
 
   alias BlogBackend.Auth
-  alias BlogBackend.Auth.{User, Guardian}
+  alias BlogBackend.Auth.User
+  alias BlogBackend.Guardian
 
   @spec login(Plug.Conn.t(), map) :: Plug.Conn.t()
   def login(conn, params = %{"email" => email, "password" => password}) do

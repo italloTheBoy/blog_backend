@@ -3,8 +3,9 @@ defmodule BlogBackendWeb.UserController do
 
   import Ecto.Query, warn: false
 
-  alias BlogBackend.Auth.{User, Guardian}
+  alias BlogBackend.Guardian
   alias BlogBackend.Auth
+  alias BlogBackend.Auth.User
 
   @spec create(
           Plug.Conn.t(),
