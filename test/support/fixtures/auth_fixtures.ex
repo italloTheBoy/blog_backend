@@ -4,7 +4,11 @@ defmodule BlogBackend.AuthFixtures do
   entities via the `BlogBackend.Auth` context.
   """
 
+  import Ecto.Query, warn: false
+
   alias BlogBackend.Auth
+  alias BlogBackend.Auth.User
+  alias BlogBackend.Guardian
 
   @doc """
   Generate a unique user email.
@@ -32,5 +36,16 @@ defmodule BlogBackend.AuthFixtures do
       |> Auth.create_user()
 
     user
+  end
+
+  @doc """
+  Generate a token.
+  """
+  @spec token_fixture(User.t()) :: String.t()
+  def token_fixture(%User{} = user) do
+    case Guardian.encode_and_sign(user, %{"typ" => "access"}) do
+      {:ok, token, _claims} -> "Bearer " <> token
+      _ -> nil
+    end
   end
 end

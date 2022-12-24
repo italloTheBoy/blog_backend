@@ -67,15 +67,14 @@ defmodule BlogBackend.Auth do
   """
   @spec get_current_user(Plug.Conn.t()) :: {:ok, %User{}} | {:error, :unauthorized}
   def get_current_user(conn) do
-    case Map.get(conn.assigns, :current_user, nil) do
-      %User{} = user ->
-        {:ok, user}
-
-      nil ->
-        {:error, :unauthorized}
+    case BlogBackend.Guardian.Plug.current_resource(conn) do
+      %User{} = user -> {:ok, user}
+      _ -> {:error, :unauthorized}
     end
   end
 
+  @spec create_user(:invalid | %{optional(:__struct__) => none, optional(atom | binary) => any}) ::
+          any
   @doc """
   Creates a user.
 

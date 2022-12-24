@@ -4,29 +4,27 @@ defmodule BlogBackendWeb.PostController do
   import BlogBackend.{Auth, Timeline}
 
   alias BlogBackend.Timeline
-  alias BlogBackend.Auth.User
-  alias BlogBackend.Timeline.Post
   alias BlogBackendWeb.FallbackController
 
-  action_fallback FallbackController
+  action_fallback(FallbackController)
+
+  # def index(conn, map), do: nil
 
   @spec create(Plug.Conn.t(), map) :: FallbackController.t()
-  def create(conn, params) do
+  def create(conn, %{"post" => post_params}) do
     with(
-      {:ok, %User{} = user} <- get_current_user(conn),
-      :ok <- Bodyguard.permit(Timeline, :create_post, user),
-      create_attrs <- Map.merge(params, %{"user_id" => user.id}),
-      {:ok, %Post{} = post} <- create_post(create_attrs)
+      {:ok, user} <- get_current_user(conn),
+      {:ok, post} <- post_params |> Map.merge(%{"user_id" => user.id}) |> create_post()
     ) do
       conn
       |> put_status(201)
-      |> render("show.json", messaage: "Created", post: post)
+      |> render("create.json", post: post)
     end
   end
 
   @spec show(Plug.Conn.t(), map) :: FallbackController.t()
-  def show(conn, %{"id" => post_id}) do
-    with {:ok, %Post{} = post} <- get_post(post_id) do
+  def show(conn, %{"id" => id}) do
+    with {:ok, post} <- get_post(id) do
       render(conn, "show.json", post: post)
     end
   end
@@ -34,12 +32,12 @@ defmodule BlogBackendWeb.PostController do
   @spec delete(Plug.Conn.t(), map) :: FallbackController.t()
   def delete(conn, %{"id" => post_id}) do
     with(
-      {:ok, %User{} = user} <- get_current_user(conn),
-      {:ok, %Post{} = post} <- get_post(post_id),
+      {:ok, user} <- get_current_user(conn),
+      {:ok, post} <- get_post(post_id),
       :ok <- Bodyguard.permit(Timeline, :delete_post, user, post),
-      {:ok, %Post{} = deleted_post} <- delete_post(post)
+      {:ok, _deleted_post} <- delete_post(post)
     ) do
-      render(conn, "show.json", post: deleted_post)
+      put_status(conn, 204)
     end
   end
 end
