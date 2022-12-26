@@ -52,14 +52,12 @@ defmodule BlogBackend.Timeline do
   @spec get_post(non_neg_integer()) ::
           {:ok, Post.t()} | {:error, :not_found | :unprocessable_entity}
   def get_post(id) do
-    try do
-      case Repo.get(Post, id) do
-        %Post{} = post -> {:ok, post}
-        nil -> {:error, :not_found}
-      end
-    rescue
-      _ -> {:error, :unprocessable_entity}
+    case Repo.get(Post, id) do
+      %Post{} = post -> {:ok, post}
+      nil -> {:error, :not_found}
     end
+  rescue
+    _ -> {:error, :unprocessable_entity}
   end
 
   @doc """

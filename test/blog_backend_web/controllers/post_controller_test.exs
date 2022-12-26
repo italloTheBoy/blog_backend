@@ -4,6 +4,7 @@ defmodule BlogBackendWeb.PostControllerTest do
   import BlogBackend.AuthFixtures
   import BlogBackend.TimelineFixtures
 
+  alias Plug.Router
   alias BlogBackend.Timeline.Post
 
   @moduletag :post_controller
@@ -71,6 +72,52 @@ defmodule BlogBackendWeb.PostControllerTest do
     @tag post_controller: "show_post"
     test "with invalid id renders an error", %{conn: conn} do
       conn = get(conn, Routes.post_path(conn, :show, "invalid_id"))
+
+      assert %{"message" => "Unprocessable Entity"} == json_response(conn, 422)["errors"]
+    end
+  end
+
+  describe "show user posts" do
+    setup [:login, :create_post]
+
+    @tag post_controller: "index_post"
+    test "with existent id renders all user posts", %{
+      conn: conn,
+      user: user,
+      post: post
+    } do
+      conn = get(conn, Routes.post_path(conn, :index, user.id))
+
+      assert 1 == json_response(conn, 200)["data"] |> length()
+    end
+
+    @tag post_controller: "index_post"
+    test "with existent id when user has any post renders empty data", %{
+      conn: conn,
+      user: user,
+      post: post
+    } do
+      conn = delete(conn, Routes.post_path(conn, :delete, post.id))
+      conn = get(conn, Routes.post_path(conn, :index, user.id))
+
+      assert 0 == json_response(conn, 200)["data"] |> length()
+    end
+
+    @tag post_controller: "index_post"
+    test "with unexistent id renders an error", %{
+      conn: conn,
+      user: user,
+      post: post
+    } do
+      conn = delete(conn, Routes.user_path(conn, :delete, user.id))
+      conn = get(conn, Routes.post_path(conn, :index, user.id))
+
+      assert %{"message" => "Not Found"} == json_response(conn, 404)["errors"]
+    end
+
+    @tag post_controller: "index_post"
+    test "with invalid id renders an error", %{conn: conn} do
+      conn = get(conn, Routes.post_path(conn, :index, "invalid_id"))
 
       assert %{"message" => "Unprocessable Entity"} == json_response(conn, 422)["errors"]
     end

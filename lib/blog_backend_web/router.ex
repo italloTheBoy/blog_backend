@@ -15,11 +15,14 @@ defmodule BlogBackendWeb.Router do
     resources "/users", UserController, only: [:create]
   end
 
-    scope "/api", BlogBackendWeb do
+  scope "/api", BlogBackendWeb do
     pipe_through [:api, Guardian.Pipeline.MaybeAuth]
 
     resources "/users", UserController, only: [:show]
+
+    get "/user/:id/posts", PostController, :index
     resources "/posts", PostController, only: [:show]
+
     resources "/comments", CommentController, only: [:show]
   end
 

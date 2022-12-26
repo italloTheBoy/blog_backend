@@ -37,6 +37,29 @@ defmodule BlogBackend.Auth do
   """
   def get_user(id), do: Repo.get(User, id)
 
+  @spec pick_user(non_neg_integer()) ::
+          {:ok, Post.t()}
+          | {:error, :not_found | :unprocessable_entity}
+  @doc """
+  Gets a single user.
+
+  ## Examples
+
+      iex> pick_user(id)
+      {:ok, %User{}}
+
+      iex> pick_user(bad_id)
+      {:error, reason}
+  """
+  def pick_user(id) do
+    case Repo.get(User, id) do
+      %User{} = user -> {:ok, user}
+      nil -> {:error, :not_found}
+    end
+  rescue
+    _ -> {:error, :unprocessable_entity}
+  end
+
   @doc """
   Gets a single user.
 

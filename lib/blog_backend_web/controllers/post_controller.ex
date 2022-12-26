@@ -8,8 +8,6 @@ defmodule BlogBackendWeb.PostController do
 
   action_fallback(FallbackController)
 
-  # def index(conn, map), do: nil
-
   @spec create(Plug.Conn.t(), map) :: FallbackController.t()
   def create(conn, %{"post" => post_params}) do
     with(
@@ -19,6 +17,16 @@ defmodule BlogBackendWeb.PostController do
       conn
       |> put_status(201)
       |> render("create.json", post: post)
+    end
+  end
+
+  @spec index(Plug.Conn.t(), map) :: FallbackController.t()
+  def index(conn, %{"id" => id}) do
+    with(
+      {:ok, user} <- pick_user(id),
+      posts <- list_user_posts(user)
+    ) do
+      render(conn, "index.json", posts: posts)
     end
   end
 
