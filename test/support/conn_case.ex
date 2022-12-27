@@ -22,6 +22,7 @@ defmodule BlogBackendWeb.ConnCase do
       # Import conveniences for testing with connections
       import Plug.Conn
       import Phoenix.ConnTest
+      import BlogBackend.TestHelpers
       import BlogBackendWeb.ConnCase
 
       alias BlogBackendWeb.Router.Helpers, as: Routes

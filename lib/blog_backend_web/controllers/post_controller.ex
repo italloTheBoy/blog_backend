@@ -8,25 +8,28 @@ defmodule BlogBackendWeb.PostController do
 
   action_fallback(FallbackController)
 
-  @spec create(Plug.Conn.t(), map) :: FallbackController.t()
-  def create(conn, %{"post" => post_params}) do
-    with(
-      {:ok, user} <- get_current_user(conn),
-      {:ok, post} <- post_params |> Map.merge(%{"user_id" => user.id}) |> create_post()
-    ) do
-      conn
-      |> put_status(201)
-      |> render("create.json", post: post)
-    end
-  end
-
   @spec index(Plug.Conn.t(), map) :: FallbackController.t()
-  def index(conn, %{"id" => id}) do
+  def index(conn, %{"user_id" => id}) do
     with(
       {:ok, user} <- pick_user(id),
       posts <- list_user_posts(user)
     ) do
       render(conn, "index.json", posts: posts)
+    end
+  end
+
+  @spec create(Plug.Conn.t(), map) :: FallbackController.t()
+  def create(conn, %{"post" => params}) do
+    with(
+      {:ok, user} <- get_current_user(conn),
+      {:ok, post} <-
+        params
+        |> Map.merge(%{"user_id" => user.id})
+        |> create_post()
+    ) do
+      conn
+      |> put_status(201)
+      |> render("create.json", post: post)
     end
   end
 

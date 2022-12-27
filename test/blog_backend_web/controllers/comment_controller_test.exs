@@ -18,7 +18,7 @@ defmodule BlogBackendWeb.CommentControllerTest do
 
   describe "index user comments" do
     @tag comment_controller: "index_user_comments"
-    test "GET /api/user/:user_id/comments list all user comments", %{conn: conn} do
+    test "GET /api/user/:user_id/comments renders all user comments", %{conn: conn} do
       user = user_fixture()
       comment = comment_fixture(%{user_id: user.id, father: :post})
 
