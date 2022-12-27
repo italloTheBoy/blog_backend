@@ -7,7 +7,6 @@ defmodule BlogBackend.TimelineTest do
 
   alias Ecto.NoResultsError
   alias Ecto.CastError
-  alias BlogBackend.Repo
   alias BlogBackend.Auth
   alias BlogBackend.Auth.User
   alias BlogBackend.Timeline
@@ -72,9 +71,7 @@ defmodule BlogBackend.TimelineTest do
 
     @tag posts: "get_post!"
     test "get_post!/1 with invalid id type raise the app" do
-      assert %CastError{} =
-               get_post!(:invalid)
-               |> catch_error()
+      assert_raise ArgumentError, fn -> get_post!(nil) end
     end
 
     @tag posts: "delete_post"
@@ -178,9 +175,7 @@ defmodule BlogBackend.TimelineTest do
 
     @tag comments: "get_comment!"
     test "get_comment!/1 with invalid id type raise the app" do
-      assert %CastError{} =
-               get_comment!(:invalid)
-               |> catch_error()
+      assert_raise ArgumentError, fn -> get_comment!(nil) end
     end
 
     @tag comments: "list_comment_comments"
@@ -368,11 +363,11 @@ defmodule BlogBackend.TimelineTest do
   describe "users_comments" do
     @tag users_comments: "list_user_comments"
     test "list_user_comments/1 with %User{} returns all user comments" do
-      %Comment{user_id: user_id} = comment = comment_fixture()
+      comment = comment_fixture()
 
-      %User{} = user = Auth.get_user!(user_id)
+      %User{} = user = Auth.get_user!(comment.user_id)
 
-      assert [comment] = list_user_comments(user)
+      assert [comment] == list_user_comments(user)
     end
 
     @tag users_comments: "list_user_comments"
@@ -384,11 +379,11 @@ defmodule BlogBackend.TimelineTest do
   describe "users_reactions" do
     @tag users_reactions: "list_user_reactions"
     test "list_user_reactions/1 with valid user returns all user reactions" do
-      %Reaction{user_id: user_id} = reaction = reaction_fixture()
+      reaction = reaction_fixture()
 
-      %User{} = user = get_user!(user_id)
+      %User{} = user = get_user!(reaction.user_id)
 
-      assert [reaction] = list_user_reactions(user)
+      assert [reaction] == list_user_reactions(user)
     end
 
     @tag users_reactions: "list_user_reactions"

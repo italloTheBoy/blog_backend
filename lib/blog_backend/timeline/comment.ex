@@ -20,22 +20,22 @@ defmodule BlogBackend.Timeline.Comment do
   end
 
   @type t() :: %Comment{
+          body: String.t(),
+          user: User.t(),
+          post: Post.t(),
+          comment: Comment.t(),
+          comments: [t()],
+          reactions: [Reaction.t()],
           id: non_neg_integer,
           post_id: non_neg_integer,
           user_id: non_neg_integer,
           comment_id: non_neg_integer,
-          post: Post.t(),
-          user: User.t(),
-          comment: Comment.t(),
-          comments: [t],
-          reactions: [Reaction.t()],
-          body: String.t()
         }
 
   @permitted_columns [:user_id, :post_id, :comment_id, :body]
 
   @doc false
-  @spec changeset(%__MODULE__{}, map) :: Ecto.Changeset.t()
+  @spec changeset(%Comment{}, map) :: Ecto.Changeset.t()
   def changeset(comment, attrs \\ %{}) do
     comment
     |> cast(attrs, @permitted_columns)

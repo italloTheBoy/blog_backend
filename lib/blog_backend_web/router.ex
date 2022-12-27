@@ -12,36 +12,42 @@ defmodule BlogBackendWeb.Router do
 
     post "/login", AuthController, :login
 
-    resources "/users", UserController, only: [:create]
+    resources "/user", UserController, only: [:create]
   end
 
   scope "/api", BlogBackendWeb do
     pipe_through [:api, Guardian.Pipeline.MaybeAuth]
 
-    resources "/users", UserController, only: [:show]
+    resources "/user", UserController, only: [:show] do
+      resources "/posts", PostController, only: [:index]
+      resources "/comments", CommentController, only: [:index]
+    end
 
-    get "/user/:id/posts", PostController, :index
-    resources "/posts", PostController, only: [:show]
+    resources "/post", PostController, only: [:show] do
+      resources "/comments", CommentController, only: [:index]
+    end
 
-    resources "/comments", CommentController, only: [:show]
+    resources "/comment", CommentController, only: [:show] do
+      resources "/comments", CommentController, only: [:index]
+    end
   end
 
   scope "/api", BlogBackendWeb do
     pipe_through [:api, Guardian.Pipeline.EnsureAuth]
 
-    resources "/users", UserController, only: [:update, :delete]
+    resources "/user", UserController, only: [:update, :delete]
 
-    resources "/posts", PostController, only: [:create, :delete] do
-      resources "/comments", CommentController, only: [:create]
-      resources "/reactions", ReactionController, only: [:create, :update]
+    resources "/post", PostController, only: [:create, :delete] do
+      resources "/comment", CommentController, only: [:create]
+      resources "/reaction", ReactionController, only: [:create, :update]
     end
 
-    resources "/comments", CommentController, only: [:delete] do
-      resources "/comments", CommentController, only: [:create]
-      resources "/reactions", ReactionController, only: [:create, :update]
+    resources "/comment", CommentController, only: [:delete] do
+      resources "/comment", CommentController, only: [:create]
+      resources "/reaction", ReactionController, only: [:create, :update]
     end
 
-    resources "/reactions", ReactionController, only: [:show, :delete]
+    resources "/reaction", ReactionController, only: [:show, :delete]
   end
 
   # Enables LiveDashboard only for development
