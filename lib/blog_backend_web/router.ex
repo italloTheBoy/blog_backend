@@ -21,14 +21,17 @@ defmodule BlogBackendWeb.Router do
     resources "/user", UserController, only: [:show] do
       resources "/posts", PostController, only: [:index]
       resources "/comments", CommentController, only: [:index]
+      resources "/reactions", ReactionController, only: [:index]
     end
 
     resources "/post", PostController, only: [:show] do
       resources "/comments", CommentController, only: [:index]
+      get "/reactions/count", ReactionController, :count
     end
 
     resources "/comment", CommentController, only: [:show] do
       resources "/comments", CommentController, only: [:index]
+      get "/reactions/count", ReactionController, :count
     end
   end
 
@@ -39,15 +42,19 @@ defmodule BlogBackendWeb.Router do
 
     resources "/post", PostController, only: [:create, :delete] do
       resources "/comment", CommentController, only: [:create]
-      resources "/reaction", ReactionController, only: [:create, :update]
+
+      resources "/reaction", ReactionController, only: [:create]
+      get "/reaction", ReactionController, :show
     end
 
     resources "/comment", CommentController, only: [:delete] do
       resources "/comment", CommentController, only: [:create]
-      resources "/reaction", ReactionController, only: [:create, :update]
+
+      resources "/reaction", ReactionController, only: [:show, :create]
+      get "/reaction", ReactionController, :show
     end
 
-    resources "/reaction", ReactionController, only: [:show, :delete]
+    resources "/reaction", ReactionController, only: [:show, :update, :delete]
   end
 
   # Enables LiveDashboard only for development

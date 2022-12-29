@@ -3,7 +3,7 @@ defmodule BlogBackendWeb.CommentController do
 
   import BlogBackend.{Auth, Timeline}
 
-  alias BlogBackend.{Timeline}
+  alias BlogBackend.Timeline
   alias BlogBackendWeb.FallbackController
 
   action_fallback FallbackController

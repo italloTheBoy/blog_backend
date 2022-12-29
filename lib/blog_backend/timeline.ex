@@ -386,6 +386,46 @@ defmodule BlogBackend.Timeline do
   """
   def get_reaction!(id), do: Repo.get!(Reaction, id)
 
+  @spec get_reaction_by_fathers(%{
+          :user_id => integer(),
+          (:comment_id | :post_id) => integer()
+        }) :: {:error, :not_found} | {:ok, Reaction.t()}
+  @doc """
+  Gets a single reaction by fathers ids.
+
+  ## Examples
+      valid param maps:
+        -- %{user_id: user_id, post_id: post_id}
+        -- %{user_id: user_id, comment_id: comment_id}
+
+      iex> get_reaction_by_fathers(valid_map)
+      {:ok, %Reaction{}}
+
+      iex> get_reaction(valid_map_contain_inexistent_ids)
+      {:error, :not_found}
+  """
+  def get_reaction_by_fathers(%{user_id: user_id, post_id: post_id}) do
+    from(r in Reaction,
+      where: [user_id: ^user_id, post_id: ^post_id]
+    )
+    |> Repo.one()
+    |> case do
+      %Reaction{} = reaction -> {:ok, reaction}
+      nil -> {:error, :not_found}
+    end
+  end
+
+  def get_reaction_by_fathers(%{user_id: user_id, comment_id: comment_id}) do
+    from(r in Reaction,
+      where: [user_id: ^user_id, comment_id: ^comment_id]
+    )
+    |> Repo.one()
+    |> case do
+      %Reaction{} = reaction -> {:ok, reaction}
+      nil -> {:error, :not_found}
+    end
+  end
+
   @spec list_user_reactions(User.t()) :: [Reaction.t()]
   @doc """
   Returns all user reactions.

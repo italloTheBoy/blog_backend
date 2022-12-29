@@ -1,30 +1,32 @@
 defmodule BlogBackendWeb.CommentView do
   use BlogBackendWeb, :view
 
-  alias BlogBackendWeb.CommentView
+  @comment_fields [
+    :id,
+    :user_id,
+    :post_id,
+    :comment_id,
+    :body,
+  ]
 
-  def render("show.json", %{comment: comment, message: message}) do
-    %{
-      message: message,
-      data: render_one(comment, CommentView, "comment.json")
+  def render("index.json", %{comments: comments}),
+    do: %{
+      data: render_many(comments, __MODULE__, "comment.json")
     }
-  end
 
-  def render("show.json", %{comment: comment}) do
-    %{
-      message: "OK",
-      data: render_one(comment, CommentView, "comment.json")
+  def render("create.json", %{comment: comment}),
+    do: %{
+      data: render("comment.json", comment: comment, only: [:id])
     }
-  end
 
-  def render("delete.json", _assigns) do
-    %{message: "OK"}
-  end
+  def render("show.json", %{comment: comment}),
+    do: %{
+      data: render("comment.json", comment: comment)
+    }
 
-  def render("comment.json", %{comment: comment}) do
-    Map.take(
-      comment,
-      [:id, :user_id, :post_id, :comment_id, :body, :inserted_at, :updated_at]
-    )
-  end
+  def render("comment.json", %{comment: comment, only: selected_fields})
+      when is_list(selected_fields),
+      do: Map.take(comment, selected_fields)
+
+  def render("comment.json", %{comment: comment}), do: Map.take(comment, @comment_fields)
 end

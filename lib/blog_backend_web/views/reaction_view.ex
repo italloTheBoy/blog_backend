@@ -1,25 +1,33 @@
 defmodule BlogBackendWeb.ReactionView do
   use BlogBackendWeb, :view
-  alias BlogBackendWeb.ReactionView
 
-  def render("show.json", %{reaction: reaction, message: message}) do
-    %{
-      message: message,
-      data: render_one(reaction, ReactionView, "reaction.json")
+  @reaction_fields [
+    :id,
+    :user_id,
+    :post_id,
+    :comment_id,
+    :type
+  ]
+
+  def render("index.json", %{reactions: reactions}),
+    do: %{
+      data: render_many(reactions, __MODULE__, "reaction.json")
     }
-  end
 
-  def render("show.json", %{reaction: reaction}) do
-    %{
-      message: "OK",
-      data: render_one(reaction, ReactionView, "reaction.json")
+  def render("create.json", %{reaction: reaction}),
+    do: %{
+      data: render("reaction.json", reaction: reaction, only: [:id])
     }
-  end
 
-  def render("reaction.json", %{reaction: reaction}) do
-    Map.take(
-      reaction,
-      [:id, :user_id, :post_id, :comment_id, :type, :inserted_at, :updated_at]
-    )
-  end
+  def render("show.json", %{reaction: reaction}),
+    do: %{
+      data: render("reaction.json", reaction: reaction)
+    }
+
+  def render("reaction.json", %{reaction: reaction, only: selected_fields})
+      when is_list(selected_fields),
+      do: Map.take(reaction, selected_fields)
+
+  def render("reaction.json", %{reaction: reaction}),
+    do: Map.take(reaction, @reaction_fields)
 end
