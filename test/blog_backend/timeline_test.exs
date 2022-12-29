@@ -14,7 +14,7 @@ defmodule BlogBackend.TimelineTest do
 
   @moduletag :timeline
 
-  describe "posts" do
+  describe "post" do
     @invalid_attrs %{user_id: nil, body: nil, title: nil}
 
     @tag posts: "create_post"
@@ -95,7 +95,7 @@ defmodule BlogBackend.TimelineTest do
     end
   end
 
-  describe "comments" do
+  describe "comment" do
     @invalid_attrs %{user_id: nil, post_id: nil, comment_id: nil, body: nil}
 
     @tag comments: "create_comment"
@@ -213,7 +213,7 @@ defmodule BlogBackend.TimelineTest do
     end
   end
 
-  describe "reactions" do
+  describe "reaction" do
     @invalid_attrs %{user_id: nil, post_id: nil, comment_id: nil, type: nil}
 
     @tag reactions: "create_reaction"
@@ -276,7 +276,7 @@ defmodule BlogBackend.TimelineTest do
 
     @tag reactions: "get_reaction"
     test "get_reaction/1 with invalid id returns an error" do
-      assert_raise ArgumentError, fn -> get_reaction(nil) end
+      assert {:error, :unprocessable_entity} == get_reaction(nil)
     end
 
     @tag reactions: "get_reaction!"
@@ -288,16 +288,52 @@ defmodule BlogBackend.TimelineTest do
 
     @tag reactions: "get_reaction!"
     test "get_reaction!/1 with nonexistent id raise the app" do
-      %Reaction{} = reaction = reaction_fixture()
-
-      delete_reaction(reaction)
-
-      assert_raise NoResultsError, fn -> get_reaction!(reaction.id) end
+      assert_raise NoResultsError, fn -> get_reaction!(0) end
     end
 
     @tag reactions: "get_reaction!"
     test "get_reaction!/1 with invalid id raise the app" do
       assert_raise ArgumentError, fn -> get_reaction!(nil) end
+    end
+
+    @tag reactions: "get_reaction_by_fathers"
+    test "get_reaction_by_fathers/1 with user and post ids return a reaction" do
+      %Reaction{user_id: user_id, post_id: post_id} = reaction_fixture()
+
+      assert {:ok, %Reaction{}} = get_reaction_by_fathers(%{user_id: user_id, post_id: post_id})
+    end
+
+    @tag reactions: "get_reaction_by_fathers"
+    test "get_reaction_by_fathers/1 with user and comment ids return a reaction" do
+      %Reaction{
+        user_id: user_id,
+        comment_id: comment_id
+      } = reaction_fixture(%{father: :comment})
+
+      assert {:ok, %Reaction{}} =
+               get_reaction_by_fathers(%{user_id: user_id, comment_id: comment_id})
+    end
+
+    @tag reactions: "get_reaction_by_fathers"
+    test "get_reaction_by_fathers/1 with user, post and comment return an error" do
+      %Reaction{user_id: user_id, post_id: post_id, comment_id: comment_id} = reaction_fixture()
+
+      assert {:error, :unprocessable_entity} ==
+               get_reaction_by_fathers(%{
+                 user_id: user_id,
+                 post_id: post_id,
+                 comment_id: comment_id
+               })
+    end
+
+    @tag reactions: "get_reaction_by_fathers"
+    test "get_reaction_by_fathers/1 when reaction cant be finded return an error" do
+      assert {:error, :not_found} == get_reaction_by_fathers(%{user_id: 0, post_id: 0})
+    end
+
+    @tag reactions: "get_reaction_by_fathers"
+    test "get_reaction_by_fathers/1 with invalid data return an error" do
+      assert_raise FunctionClauseError, fn -> get_reaction_by_fathers(%{}) end
     end
 
     @tag reactions: "toggle_reaction_type"

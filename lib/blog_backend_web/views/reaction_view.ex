@@ -14,7 +14,7 @@ defmodule BlogBackendWeb.ReactionView do
       data: render_many(reactions, __MODULE__, "reaction.json")
     }
 
-  def render("create.json", %{reaction: reaction}),
+  def render("id.json", %{reaction: reaction}),
     do: %{
       data: render("reaction.json", reaction: reaction, only: [:id])
     }

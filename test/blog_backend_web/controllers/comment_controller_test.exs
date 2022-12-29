@@ -9,7 +9,6 @@ defmodule BlogBackendWeb.CommentControllerTest do
   @moduletag :comment_controller
 
   @create_attrs %{body: "some body"}
-  @update_attrs %{body: "some updated body"}
   @invalid_attrs %{body: nil}
 
   setup %{conn: conn} do
@@ -51,7 +50,7 @@ defmodule BlogBackendWeb.CommentControllerTest do
       conn = get(conn, Routes.post_comment_path(conn, :index, father_id))
 
       expected_res = render(CommentView, "index.json", comments: [comment])
-      assert expected_res = json_response(conn, 200)["data"]
+      assert expected_res == json_response(conn, 200)["data"]
     end
 
     @tag comment_controller: "index_post_comments"
@@ -77,7 +76,7 @@ defmodule BlogBackendWeb.CommentControllerTest do
       conn = get(conn, Routes.comment_comment_path(conn, :index, father_id))
 
       expected_res = render(CommentView, "index.json", comments: [comment])
-      assert expected_res = json_response(conn, 200)["data"]
+      assert expected_res == json_response(conn, 200)["data"]
     end
 
     @tag comment_controller: "index_comment_comments"
@@ -175,7 +174,7 @@ defmodule BlogBackendWeb.CommentControllerTest do
     end
 
     @tag comment_controller: "show_comment"
-    test "GET /api/comment/:id when comment can not be founded renders an error", %{conn: conn} do
+    test "GET /api/comment/:id when comment can not be finded renders an error", %{conn: conn} do
       conn = get(conn, Routes.comment_path(conn, :show, 0))
 
       assert %{"message" => "Not Found"} == json_response(conn, 404)["errors"]
@@ -207,7 +206,7 @@ defmodule BlogBackendWeb.CommentControllerTest do
     end
 
     @tag comment_controller: "delete_comment"
-    test "DELETE /api/comment/:id when comment con not be founded render an error", %{conn: conn} do
+    test "DELETE /api/comment/:id when comment con not be finded render an error", %{conn: conn} do
       conn = get(conn, Routes.comment_path(conn, :show, 0))
       assert %{"message" => "Not Found"} == json_response(conn, 404)["errors"]
     end

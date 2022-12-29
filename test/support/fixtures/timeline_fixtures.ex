@@ -4,6 +4,8 @@ defmodule BlogBackend.TimelineFixtures do
 
   alias BlogBackend.Timeline.{Post, Comment, Reaction}
 
+  def random_reaction_type(), do: Enum.random(["like", "dislike"])
+
   @moduledoc """
   This module defines test helpers for creating
   entities via the `BlogBackend.Timeline` context.
@@ -83,7 +85,7 @@ defmodule BlogBackend.TimelineFixtures do
     {:ok, %Reaction{} = reaction} =
       attrs
       |> Enum.into(%{
-        type: "like",
+        type: random_reaction_type(),
         user_id: user.id,
         post_id: post.id
       })
@@ -93,13 +95,12 @@ defmodule BlogBackend.TimelineFixtures do
   end
 
   def reaction_fixture(%{father: :comment} = attrs) do
-    %Comment{id: comment_id, user_id:  user_id} = comment_fixture()
-
+    %Comment{id: comment_id, user_id: user_id} = comment_fixture()
 
     {:ok, %Reaction{} = reaction} =
       attrs
       |> Enum.into(%{
-        type: "like",
+        type: random_reaction_type(),
         user_id: user_id,
         comment_id: comment_id
       })

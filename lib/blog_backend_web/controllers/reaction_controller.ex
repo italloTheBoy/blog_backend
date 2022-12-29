@@ -30,7 +30,7 @@ defmodule BlogBackendWeb.ReactionController do
     ) do
       conn
       |> put_status(201)
-      |> render("create.json", reaction: reaction)
+      |> render("id.json", reaction: reaction)
     end
   end
 
@@ -44,7 +44,7 @@ defmodule BlogBackendWeb.ReactionController do
     ) do
       conn
       |> put_status(201)
-      |> render("create.json", reaction: reaction)
+      |> render("id.json", reaction: reaction)
     end
   end
 
@@ -114,11 +114,11 @@ defmodule BlogBackendWeb.ReactionController do
   def update(conn, %{"id" => id}) do
     with(
       {:ok, user} <- get_current_user(conn),
-      {:ok, reaction} = get_reaction(id),
-      :ok <- Bodyguard.permit(Timeline, :show_reaction, user, reaction),
+      {:ok, reaction} <- get_reaction(id),
+      :ok <- Bodyguard.permit(Timeline, :update_reaction, user, reaction),
       {:ok, updated_reaction} <- toggle_reaction_type(reaction)
     ) do
-      render(conn, "show.json", reaction: updated_reaction)
+      render(conn, "id.json", reaction: updated_reaction)
     end
   end
 
@@ -126,8 +126,8 @@ defmodule BlogBackendWeb.ReactionController do
   def delete(conn, %{"id" => id}) do
     with(
       {:ok, user} <- get_current_user(conn),
-      {:ok, reaction} = get_reaction(id),
-      :ok <- Bodyguard.permit(Timeline, :show_reaction, user, reaction),
+      {:ok, reaction} <- get_reaction(id),
+      :ok <- Bodyguard.permit(Timeline, :update_reaction, user, reaction),
       {:ok, _deleted_reaction} <- delete_reaction(reaction)
     ) do
       put_status(conn, 204)

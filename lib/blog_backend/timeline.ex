@@ -349,7 +349,8 @@ defmodule BlogBackend.Timeline do
     |> Repo.insert()
   end
 
-  @spec get_reaction(non_neg_integer()) :: {:error, :not_found} | {:ok, %Reaction{}}
+  @spec get_reaction(non_neg_integer()) ::
+          {:error, :not_found | :unprocessable_entity} | {:ok, %Reaction{}}
   @doc """
   Gets a single reaction.
 
@@ -367,6 +368,8 @@ defmodule BlogBackend.Timeline do
       %Reaction{} = reaction -> {:ok, reaction}
       nil -> {:error, :not_found}
     end
+  rescue
+    _ -> {:error, :unprocessable_entity}
   end
 
   @spec get_reaction!(non_neg_integer()) :: Reaction.t()
@@ -404,6 +407,9 @@ defmodule BlogBackend.Timeline do
       iex> get_reaction(valid_map_contain_inexistent_ids)
       {:error, :not_found}
   """
+  def get_reaction_by_fathers(%{user_id: _, post_id: _, comment_id: _}),
+    do: {:error, :unprocessable_entity}
+
   def get_reaction_by_fathers(%{user_id: user_id, post_id: post_id}) do
     from(r in Reaction,
       where: [user_id: ^user_id, post_id: ^post_id]
@@ -413,6 +419,8 @@ defmodule BlogBackend.Timeline do
       %Reaction{} = reaction -> {:ok, reaction}
       nil -> {:error, :not_found}
     end
+  rescue
+    _ -> {:error, :unprocessable_entity}
   end
 
   def get_reaction_by_fathers(%{user_id: user_id, comment_id: comment_id}) do
@@ -424,6 +432,8 @@ defmodule BlogBackend.Timeline do
       %Reaction{} = reaction -> {:ok, reaction}
       nil -> {:error, :not_found}
     end
+  rescue
+    _ -> {:error, :unprocessable_entity}
   end
 
   @spec list_user_reactions(User.t()) :: [Reaction.t()]

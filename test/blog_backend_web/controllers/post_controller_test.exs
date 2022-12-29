@@ -3,22 +3,14 @@ defmodule BlogBackendWeb.PostControllerTest do
 
   import BlogBackend.AuthFixtures
   import BlogBackend.TimelineFixtures
-  import BlogBackendWeb.PostView
 
   alias BlogBackendWeb.PostView
-  alias Plug.Router
-  alias BlogBackend.Timeline.Post
 
   @moduletag :post_controller
 
   @create_attrs %{
     title: "some title",
     body: "some body"
-  }
-
-  @update_attrs %{
-    title: "some updated title",
-    body: "some updated body"
   }
 
   @invalid_attrs %{title: nil, body: nil}
