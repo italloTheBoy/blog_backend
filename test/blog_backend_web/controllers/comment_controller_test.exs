@@ -31,14 +31,14 @@ defmodule BlogBackendWeb.CommentControllerTest do
     test "GET /api/user/:user_id/comments when user not fouded, render an error", %{conn: conn} do
       conn = get(conn, Routes.user_comment_path(conn, :index, 0))
 
-      assert %{"message" => "Not Found"} == json_response(conn, 404)["errors"]
+      assert %{"detail" => "Not Found"} == json_response(conn, 404)["errors"]
     end
 
     @tag comment_controller: "index_user_comments"
     test "GET /api/user/:user_id/comments when user id is invalid, render an error", %{conn: conn} do
       conn = get(conn, Routes.user_comment_path(conn, :index, "invalid_id"))
 
-      assert %{"message" => "Unprocessable Entity"} == json_response(conn, 422)["errors"]
+      assert %{"detail" => "Unprocessable Entity"} == json_response(conn, 422)["errors"]
     end
   end
 
@@ -50,21 +50,21 @@ defmodule BlogBackendWeb.CommentControllerTest do
       conn = get(conn, Routes.post_comment_path(conn, :index, father_id))
 
       expected_res = render(CommentView, "index.json", comments: [comment])
-      assert expected_res == json_response(conn, 200)["data"]
+      assert expected_res == json_response(conn, 200)
     end
 
     @tag comment_controller: "index_post_comments"
     test "GET /api/post/:post_id/comments when post not fouded, render an error", %{conn: conn} do
       conn = get(conn, Routes.post_comment_path(conn, :index, 0))
 
-      assert %{"message" => "Not Found"} == json_response(conn, 404)["errors"]
+      assert %{"detail" => "Not Found"} == json_response(conn, 404)["errors"]
     end
 
     @tag comment_controller: "index_post_comments"
     test "GET /api/post/:post_id/comments when post_id is invalid, render an error", %{conn: conn} do
       conn = get(conn, Routes.post_comment_path(conn, :index, "invalid_id"))
 
-      assert %{"message" => "Unprocessable Entity"} == json_response(conn, 422)["errors"]
+      assert %{"detail" => "Unprocessable Entity"} == json_response(conn, 422)["errors"]
     end
   end
 
@@ -76,14 +76,14 @@ defmodule BlogBackendWeb.CommentControllerTest do
       conn = get(conn, Routes.comment_comment_path(conn, :index, father_id))
 
       expected_res = render(CommentView, "index.json", comments: [comment])
-      assert expected_res == json_response(conn, 200)["data"]
+      assert expected_res == json_response(conn, 200)
     end
 
     @tag comment_controller: "index_comment_comments"
     test "GET /comment/:comment_id/comments when post not fouded, render an error", %{conn: conn} do
       conn = get(conn, Routes.comment_comment_path(conn, :index, 0))
 
-      assert %{"message" => "Not Found"} == json_response(conn, 404)["errors"]
+      assert %{"detail" => "Not Found"} == json_response(conn, 404)["errors"]
     end
 
     @tag comment_controller: "index_comment_comments"
@@ -92,7 +92,7 @@ defmodule BlogBackendWeb.CommentControllerTest do
     } do
       conn = get(conn, Routes.comment_comment_path(conn, :index, "invalid_id"))
 
-      assert %{"message" => "Unprocessable Entity"} == json_response(conn, 422)["errors"]
+      assert %{"detail" => "Unprocessable Entity"} == json_response(conn, 422)["errors"]
     end
   end
 
@@ -177,14 +177,14 @@ defmodule BlogBackendWeb.CommentControllerTest do
     test "GET /api/comment/:id when comment can not be finded renders an error", %{conn: conn} do
       conn = get(conn, Routes.comment_path(conn, :show, 0))
 
-      assert %{"message" => "Not Found"} == json_response(conn, 404)["errors"]
+      assert %{"detail" => "Not Found"} == json_response(conn, 404)["errors"]
     end
 
     @tag comment_controller: "show_comment"
     test "GET /api/comment/:id with invalid id renders an error", %{conn: conn} do
       conn = get(conn, Routes.comment_path(conn, :show, "invalid_id"))
 
-      assert %{"message" => "Unprocessable Entity"} == json_response(conn, 422)["errors"]
+      assert %{"detail" => "Unprocessable Entity"} == json_response(conn, 422)["errors"]
     end
   end
 
@@ -202,19 +202,19 @@ defmodule BlogBackendWeb.CommentControllerTest do
       conn = delete(conn, Routes.comment_path(conn, :delete, comment.id))
 
       conn = get(conn, Routes.comment_path(conn, :show, comment))
-      assert %{"message" => "Not Found"} == json_response(conn, 404)["errors"]
+      assert %{"detail" => "Not Found"} == json_response(conn, 404)["errors"]
     end
 
     @tag comment_controller: "delete_comment"
     test "DELETE /api/comment/:id when comment con not be finded render an error", %{conn: conn} do
       conn = get(conn, Routes.comment_path(conn, :show, 0))
-      assert %{"message" => "Not Found"} == json_response(conn, 404)["errors"]
+      assert %{"detail" => "Not Found"} == json_response(conn, 404)["errors"]
     end
 
     @tag comment_controller: "delete_comment"
     test "DELETE /api/comment/:id with invalid id render an error", %{conn: conn} do
       conn = get(conn, Routes.comment_path(conn, :show, "invalid_id"))
-      assert %{"message" => "Unprocessable Entity"} == json_response(conn, 422)["errors"]
+      assert %{"detail" => "Unprocessable Entity"} == json_response(conn, 422)["errors"]
     end
   end
 

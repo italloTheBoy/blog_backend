@@ -33,14 +33,14 @@ defmodule BlogBackendWeb.ReactionControllerTest do
     test "renders an error when user cant be found", %{conn: conn} do
       conn = get(conn, Routes.user_reaction_path(conn, :index, 0))
 
-      assert %{"message" => "Not Found"} == json_response(conn, 404)["errors"]
+      assert %{"detail" => "Not Found"} == json_response(conn, 404)["errors"]
     end
 
     @tag reaction_controller: "index_user_reactions"
     test "whith invalid data renders an error", %{conn: conn} do
       conn = get(conn, Routes.user_reaction_path(conn, :index, "invalid"))
 
-      assert %{"message" => "Unprocessable Entity"} == json_response(conn, 422)["errors"]
+      assert %{"detail" => "Unprocessable Entity"} == json_response(conn, 422)["errors"]
     end
   end
 
@@ -167,14 +167,14 @@ defmodule BlogBackendWeb.ReactionControllerTest do
     } do
       conn = get(conn, Routes.reaction_path(conn, :show, 0))
 
-      assert %{"message" => "Not Found"} == json_response(conn, 404)["errors"]
+      assert %{"detail" => "Not Found"} == json_response(conn, 404)["errors"]
     end
 
     @tag reaction_controller: "show_reaction"
     test "with invalid data rebders an error", %{conn: conn} do
       conn = get(conn, Routes.reaction_path(conn, :show, "invalid"))
 
-      assert %{"message" => "Unprocessable Entity"} == json_response(conn, 422)["errors"]
+      assert %{"detail" => "Unprocessable Entity"} == json_response(conn, 422)["errors"]
     end
   end
 
@@ -196,14 +196,14 @@ defmodule BlogBackendWeb.ReactionControllerTest do
     test "when reaction cant be finded renders an error", %{conn: conn} do
       conn = get(conn, Routes.post_reaction_path(conn, :show, 0))
 
-      assert %{"message" => "Not Found"} == json_response(conn, 404)["errors"]
+      assert %{"detail" => "Not Found"} == json_response(conn, 404)["errors"]
     end
 
     @tag reaction_controller: "show_user_post_reaction"
     test "with invalid data rebders an error", %{conn: conn} do
       conn = get(conn, Routes.post_reaction_path(conn, :show, "invalid"))
 
-      assert %{"message" => "Unprocessable Entity"} == json_response(conn, 422)["errors"]
+      assert %{"detail" => "Unprocessable Entity"} == json_response(conn, 422)["errors"]
     end
   end
 
@@ -225,14 +225,14 @@ defmodule BlogBackendWeb.ReactionControllerTest do
     test "when reaction cant be finded renders an error", %{conn: conn} do
       conn = get(conn, Routes.comment_reaction_path(conn, :show, 0))
 
-      assert %{"message" => "Not Found"} == json_response(conn, 404)["errors"]
+      assert %{"detail" => "Not Found"} == json_response(conn, 404)["errors"]
     end
 
     @tag reaction_controller: "show_user_comment_reaction"
     test "with invalid data rebders an error", %{conn: conn} do
       conn = get(conn, Routes.comment_reaction_path(conn, :show, "invalid"))
 
-      assert %{"message" => "Unprocessable Entity"} == json_response(conn, 422)["errors"]
+      assert %{"detail" => "Unprocessable Entity"} == json_response(conn, 422)["errors"]
     end
   end
 
@@ -253,14 +253,14 @@ defmodule BlogBackendWeb.ReactionControllerTest do
     test "renders an error when post cant be finded", %{conn: conn} do
       conn = get(conn, Routes.post_reaction_path(conn, :count, 0))
 
-      assert %{"message" => "Not Found"} == json_response(conn, 404)["errors"]
+      assert %{"detail" => "Not Found"} == json_response(conn, 404)["errors"]
     end
 
     @tag reaction_controller: "count_post_reactions"
     test "with invalid data renders an error", %{conn: conn} do
       conn = get(conn, Routes.post_reaction_path(conn, :count, "invalid"))
 
-      assert %{"message" => "Unprocessable Entity"} == json_response(conn, 422)["errors"]
+      assert %{"detail" => "Unprocessable Entity"} == json_response(conn, 422)["errors"]
     end
   end
 
@@ -281,14 +281,14 @@ defmodule BlogBackendWeb.ReactionControllerTest do
     test "renders an error when comment cant be finded", %{conn: conn} do
       conn = get(conn, Routes.comment_reaction_path(conn, :count, 0))
 
-      assert %{"message" => "Not Found"} == json_response(conn, 404)["errors"]
+      assert %{"detail" => "Not Found"} == json_response(conn, 404)["errors"]
     end
 
     @tag reaction_controller: "count_comment_reactions"
     test "with invalid data renders an error", %{conn: conn} do
       conn = get(conn, Routes.comment_reaction_path(conn, :count, "invalid"))
 
-      assert %{"message" => "Unprocessable Entity"} == json_response(conn, 422)["errors"]
+      assert %{"detail" => "Unprocessable Entity"} == json_response(conn, 422)["errors"]
     end
   end
 
@@ -318,14 +318,14 @@ defmodule BlogBackendWeb.ReactionControllerTest do
     test "renders an error when reaction cant be finded", %{conn: conn} do
       conn = put(conn, Routes.reaction_path(conn, :update, 0))
 
-      assert %{"message" => "Not Found"} == json_response(conn, 404)["errors"]
+      assert %{"detail" => "Not Found"} == json_response(conn, 404)["errors"]
     end
 
     @tag reaction_controller: "update_reaction"
     test "whith invalid id renders an error", %{conn: conn} do
       conn = put(conn, Routes.reaction_path(conn, :update, "invalid"))
 
-      assert %{"message" => "Unprocessable Entity"} == json_response(conn, 422)["errors"]
+      assert %{"detail" => "Unprocessable Entity"} == json_response(conn, 422)["errors"]
     end
   end
 
@@ -340,21 +340,21 @@ defmodule BlogBackendWeb.ReactionControllerTest do
       delete(conn, Routes.reaction_path(conn, :delete, reaction.id))
       conn = get(conn, Routes.reaction_path(conn, :show, reaction))
 
-      assert %{"message" => "Not Found"} == json_response(conn, 404)["errors"]
+      assert %{"detail" => "Not Found"} == json_response(conn, 404)["errors"]
     end
 
     @tag reaction_controller: "delete_reaction"
     test "when reaction cant be founded renders an error", %{conn: conn} do
       conn = delete(conn, Routes.reaction_path(conn, :delete, 0))
 
-      assert %{"message" => "Not Found"} == json_response(conn, 404)["errors"]
+      assert %{"detail" => "Not Found"} == json_response(conn, 404)["errors"]
     end
 
     @tag reaction_controller: "delete_reaction"
     test "with invalid data renders an error", %{conn: conn} do
       conn = delete(conn, Routes.reaction_path(conn, :delete, "invalid"))
 
-      assert %{"message" => "Unprocessable Entity"} == json_response(conn, 422)["errors"]
+      assert %{"detail" => "Unprocessable Entity"} == json_response(conn, 422)["errors"]
     end
   end
 

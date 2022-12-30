@@ -23,7 +23,7 @@ defmodule BlogBackendWeb.ReactionViewTest do
     do:
       assert(
         View.render(ReactionView, "index.json", reactions: [reaction]) == %{
-          data: [Map.take(reaction, @reaction_fields)]
+          data: [take_reaction(reaction)]
         }
       )
   )
@@ -33,7 +33,7 @@ defmodule BlogBackendWeb.ReactionViewTest do
     do:
       assert(
         View.render(ReactionView, "id.json", reaction: reaction) == %{
-          data: Map.take(reaction, [:id])
+          data: take_reaction(reaction, [:id])
         }
       )
   )
@@ -43,31 +43,34 @@ defmodule BlogBackendWeb.ReactionViewTest do
     do:
       assert(
         View.render(ReactionView, "show.json", reaction: reaction) == %{
-          data: Map.take(reaction, @reaction_fields)
+          data: take_reaction(reaction)
         }
       )
   )
 
   describe "renders reaction.json" do
     @tag reaction_view: "reaction"
-    test("whith any aption render all fields", %{reaction: reaction},
+    test("with any aption render all fields", %{reaction: reaction},
       do:
         assert(
-          Map.take(reaction, @reaction_fields) ==
+          take_reaction(reaction) ==
             View.render(ReactionView, "reaction.json", reaction: reaction)
         )
     )
 
     @tag reaction_view: "reaction"
-    test "whith :only option renders only slected fields", %{reaction: reaction} do
-      selected_fields =
-        Enum.take_random(@reaction_fields, Enum.random(0..length(@reaction_fields)))
+    test "with :only option renders only slected fields", %{reaction: reaction} do
+      selected_fields = select_random_fields(@reaction_fields)
 
-      assert Map.take(reaction, selected_fields) ==
+      assert take_reaction(reaction, selected_fields) ==
                View.render(ReactionView, "reaction.json",
                  reaction: reaction,
                  only: selected_fields
                )
     end
   end
+
+  defp take_reaction(reaction, selected_fields \\ @reaction_fields)
+       when is_list(selected_fields),
+       do: Map.take(reaction, selected_fields)
 end

@@ -29,7 +29,7 @@ defmodule BlogBackendWeb.PostController do
     ) do
       conn
       |> put_status(201)
-      |> render("create.json", post: post)
+      |> render("id.json", post: post)
     end
   end
 

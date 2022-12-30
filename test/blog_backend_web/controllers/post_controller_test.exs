@@ -37,14 +37,14 @@ defmodule BlogBackendWeb.PostControllerTest do
     test "GET /api/user/:user_id/comments with unexistent user_id renders an error", %{conn: conn} do
       conn = get(conn, Routes.user_post_path(conn, :index, 0))
 
-      assert %{"message" => "Not Found"} == json_response(conn, 404)["errors"]
+      assert %{"detail" => "Not Found"} == json_response(conn, 404)["errors"]
     end
 
     @tag post_controller: "index_user_post"
     test "GET /api/user/:user_id/comments with invalid id renders an error", %{conn: conn} do
       conn = get(conn, Routes.user_post_path(conn, :index, "invalid_id"))
 
-      assert %{"message" => "Unprocessable Entity"} == json_response(conn, 422)["errors"]
+      assert %{"detail" => "Unprocessable Entity"} == json_response(conn, 422)["errors"]
     end
   end
 
@@ -89,14 +89,14 @@ defmodule BlogBackendWeb.PostControllerTest do
     test "GET /api/post/:id with nonexistent id renders an error", %{conn: conn} do
       conn = get(conn, Routes.post_path(conn, :show, 0))
 
-      assert %{"message" => "Not Found"} == json_response(conn, 404)["errors"]
+      assert %{"detail" => "Not Found"} == json_response(conn, 404)["errors"]
     end
 
     @tag post_controller: "show_post"
     test "GET /api/post/:id with invalid id renders an error", %{conn: conn} do
       conn = get(conn, Routes.post_path(conn, :show, "invalid_id"))
 
-      assert %{"message" => "Unprocessable Entity"} == json_response(conn, 422)["errors"]
+      assert %{"detail" => "Unprocessable Entity"} == json_response(conn, 422)["errors"]
     end
   end
 
@@ -111,21 +111,21 @@ defmodule BlogBackendWeb.PostControllerTest do
       conn = delete(conn, Routes.post_path(conn, :delete, post.id))
 
       conn = get(conn, Routes.post_path(conn, :show, post.id))
-      assert %{"message" => "Not Found"} == json_response(conn, 404)["errors"]
+      assert %{"detail" => "Not Found"} == json_response(conn, 404)["errors"]
     end
 
     @tag post_controller: "delete_post"
     test "DELETE /api/post/:id with nonexistent id renders an error", %{conn: conn} do
       conn = delete(conn, Routes.post_path(conn, :delete, 0))
 
-      assert %{"message" => "Not Found"} == json_response(conn, 404)["errors"]
+      assert %{"detail" => "Not Found"} == json_response(conn, 404)["errors"]
     end
 
     @tag post_controller: "delete_post"
     test "DELETE /api/post/:id with invalid id renders an error", %{conn: conn} do
       conn = delete(conn, Routes.post_path(conn, :delete, "invalid_id"))
 
-      assert %{"message" => "Unprocessable Entity"} == json_response(conn, 422)["errors"]
+      assert %{"detail" => "Unprocessable Entity"} == json_response(conn, 422)["errors"]
     end
   end
 
