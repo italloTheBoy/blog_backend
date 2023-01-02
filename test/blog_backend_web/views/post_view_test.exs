@@ -30,9 +30,9 @@ defmodule BlogBackendWeb.PostViewTest do
              View.render(PostView, "show.json", post: post)
   end
 
-  describe "renders post,json" do
+  describe "renders post.json" do
     @tag post_view: "post"
-    test "with any aption render all fields", %{post: post} do
+    test "with no option render all fields", %{post: post} do
       assert take_post(post) ==
                View.render(PostView, "post.json", post: post)
     end

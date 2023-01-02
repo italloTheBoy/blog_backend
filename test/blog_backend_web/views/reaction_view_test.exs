@@ -50,7 +50,7 @@ defmodule BlogBackendWeb.ReactionViewTest do
 
   describe "renders reaction.json" do
     @tag reaction_view: "reaction"
-    test("with any aption render all fields", %{reaction: reaction},
+    test("with no option render all fields", %{reaction: reaction},
       do:
         assert(
           take_reaction(reaction) ==

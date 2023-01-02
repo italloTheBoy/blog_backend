@@ -47,7 +47,7 @@ defmodule BlogBackendWeb.CommentController do
     ) do
       conn
       |> put_status(201)
-      |> render("create.json", comment: comment)
+      |> render("id.json", comment: comment)
     end
   end
 
@@ -61,7 +61,7 @@ defmodule BlogBackendWeb.CommentController do
     ) do
       conn
       |> put_status(201)
-      |> render("create.json", comment: comment)
+      |> render("id.json", comment: comment)
     end
   end
 

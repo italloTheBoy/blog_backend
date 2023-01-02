@@ -14,7 +14,7 @@ defmodule BlogBackendWeb.CommentView do
       data: render_many(comments, __MODULE__, "comment.json")
     }
 
-  def render("create.json", %{comment: comment}),
+  def render("id.json", %{comment: comment}),
     do: %{
       data: render("comment.json", comment: comment, only: [:id])
     }
