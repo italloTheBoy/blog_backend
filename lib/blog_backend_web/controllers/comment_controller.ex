@@ -11,7 +11,7 @@ defmodule BlogBackendWeb.CommentController do
   @spec index(Plug.Conn.t(), map) :: FallbackController.t()
   def index(conn, %{"user_id" => id}) do
     with(
-      {:ok, user} <- pick_user(id),
+      {:ok, user} <- get_user(id),
       comments <- list_user_comments(user)
     ) do
       render(conn, "index.json", comments: comments)
@@ -39,7 +39,7 @@ defmodule BlogBackendWeb.CommentController do
   @spec create(Plug.Conn.t(), map) :: FallbackController.t()
   def create(conn, %{"post_id" => father_id, "comment" => params}) do
     with(
-      {:ok, user} <- get_current_user(conn),
+      {:ok, user} <- get_athenticated_user(conn),
       {:ok, comment} <-
         params
         |> Map.merge(%{"user_id" => user.id, "post_id" => father_id})
@@ -53,7 +53,7 @@ defmodule BlogBackendWeb.CommentController do
 
   def create(conn, %{"comment_id" => father_id, "comment" => params}) do
     with(
-      {:ok, user} <- get_current_user(conn),
+      {:ok, user} <- get_athenticated_user(conn),
       {:ok, comment} <-
         params
         |> Map.merge(%{"user_id" => user.id, "comment_id" => father_id})
@@ -75,7 +75,7 @@ defmodule BlogBackendWeb.CommentController do
   @spec delete(Plug.Conn.t(), map) :: FallbackController.t()
   def delete(conn, %{"id" => id}) do
     with(
-      {:ok, user} <- get_current_user(conn),
+      {:ok, user} <- get_athenticated_user(conn),
       {:ok, comment} <- get_comment(id),
       :ok <- Bodyguard.permit(Timeline, :delete_comment, user, comment),
       {:ok, _deleted_comment} <- Timeline.delete_comment(comment)

@@ -62,9 +62,8 @@ defmodule BlogBackend.Timeline do
 
   @doc """
   Fetches a single post.
-  Raises `Ecto.NoResultsError` if the post does not exist.
-  Raises `Ecto.Query.CastError` if id type is invalid.
 
+  Raises `Ecto.NoResultsError` if the post does not exist.
 
   ## Examples
 
@@ -74,11 +73,8 @@ defmodule BlogBackend.Timeline do
       iex> get_post!(456)
       ** (Ecto.NoResultsError)
 
-      iex> get_post!("invalid")
-      ** (Ecto.Query.CastError)
-
   """
-  @spec get_post!(non_neg_integer()) :: Post.t() | nil
+  @spec get_post!(non_neg_integer()) :: Post.t()
   def get_post!(id), do: Repo.get!(Post, id)
 
   @doc """

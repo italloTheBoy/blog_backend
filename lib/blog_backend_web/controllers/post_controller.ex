@@ -11,7 +11,7 @@ defmodule BlogBackendWeb.PostController do
   @spec index(Plug.Conn.t(), map) :: FallbackController.t()
   def index(conn, %{"user_id" => id}) do
     with(
-      {:ok, user} <- pick_user(id),
+      {:ok, user} <- get_user(id),
       posts <- list_user_posts(user)
     ) do
       render(conn, "index.json", posts: posts)
@@ -21,7 +21,7 @@ defmodule BlogBackendWeb.PostController do
   @spec create(Plug.Conn.t(), map) :: FallbackController.t()
   def create(conn, %{"post" => params}) do
     with(
-      {:ok, user} <- get_current_user(conn),
+      {:ok, user} <- get_athenticated_user(conn),
       {:ok, post} <-
         params
         |> Map.merge(%{"user_id" => user.id})
@@ -43,7 +43,7 @@ defmodule BlogBackendWeb.PostController do
   @spec delete(Plug.Conn.t(), map) :: FallbackController.t()
   def delete(conn, %{"id" => post_id}) do
     with(
-      {:ok, user} <- get_current_user(conn),
+      {:ok, user} <- get_athenticated_user(conn),
       {:ok, post} <- get_post(post_id),
       :ok <- Bodyguard.permit(Timeline, :delete_post, user, post),
       {:ok, _deleted_post} <- delete_post(post)
