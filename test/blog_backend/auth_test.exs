@@ -65,6 +65,32 @@ defmodule BlogBackend.AuthTest do
       assert_raise Ecto.NoResultsError, fn -> get_user!(0) end
     end
 
+    @tag auth: "get_user_by_email"
+    test "get_user_by_email/1 fetches a single user with the given email" do
+      user = user_fixture()
+
+      assert {:ok, %User{user | password: nil}} ==
+               get_user_by_email(user.email)
+    end
+
+    @tag auth: "get_user_by_email"
+    test "get_user_by_email/1 return an error when user cant be finded" do
+      assert {:error, :not_found} == get_user_by_email("")
+    end
+
+    @tag auth: "get_user_by_username"
+    test "get_user_by_username/1 fetches a single user with the given username" do
+      user = user_fixture()
+
+      assert {:ok, %User{user | password: nil}} ==
+               get_user_by_username(user.username)
+    end
+
+    @tag auth: "get_user_by_username"
+    test "get_user_by_username/1 return an error when user cant be finded" do
+      assert {:error, :not_found} == get_user_by_username("")
+    end
+
     @tag auth: "search_user"
     test "search_user/1 returns a list of users by given data" do
       user = %User{user_fixture() | password: nil}
@@ -119,7 +145,7 @@ defmodule BlogBackend.AuthTest do
 
     @tag auth: "check_credentials"
     test "check_credentials/2 returns an with invalid email" do
-      user = user_fixture(@valid_attrs)
+      user_fixture(@valid_attrs)
 
       assert {:error, :unprocessable_entity} ==
                check_credentials("invalid", @valid_attrs.password)

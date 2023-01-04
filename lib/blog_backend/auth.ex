@@ -9,6 +9,11 @@ defmodule BlogBackend.Auth do
   alias BlogBackend.Repo
   alias BlogBackend.Auth.User
 
+  @spec authorize(atom, User.t(), User.t()) ::
+          :ok | {:error, :forbidden}
+  defdelegate authorize(action, user, params),
+    to: BlogBackend.Auth.Policy
+
   @spec create_user(map) ::
           {:ok, User.t()} | {:error, Ecto.Changeset.t()}
   @doc """
@@ -85,6 +90,50 @@ defmodule BlogBackend.Auth do
     case BlogBackend.Guardian.Plug.current_resource(conn) do
       %User{} = user -> {:ok, user}
       _ -> {:error, :unauthorized}
+    end
+  end
+
+  @spec get_user_by_email(String.t()) ::
+          {:ok, User.t()} | {:error, :not_found}
+  @doc """
+  Gets a single user with the given email.
+
+  ## Examples
+
+      iex> get_user_by_email(id)
+      {:ok, %User{}}
+
+      iex> get_user_by_email(bad_id)
+      {:error, :not_found}
+  """
+  def get_user_by_email(email) when is_binary(email) do
+    query = from(u in User, where: u.email == ^email)
+
+    case Repo.one(query) do
+      %User{} = user -> {:ok, user}
+      nil -> {:error, :not_found}
+    end
+  end
+
+  @spec get_user_by_username(String.t()) ::
+          {:ok, User.t()} | {:error, :not_found}
+  @doc """
+  Gets a single user with the given username.
+
+  ## Examples
+
+      iex> get_user_by_username(id)
+      {:ok, %User{}}
+
+      iex> get_user_by_username(bad_id)
+      {:error, :not_found}
+  """
+  def get_user_by_username(username) when is_binary(username) do
+    query = from(u in User, where: u.username == ^username)
+
+    case Repo.one(query) do
+      %User{} = user -> {:ok, user}
+      nil -> {:error, :not_found}
     end
   end
 
