@@ -34,7 +34,7 @@ defmodule BlogBackend.Auth do
     |> Repo.insert()
   end
 
-  @spec get_user(integer()) ::
+  @spec get_user(integer() | String.t()) ::
           {:ok, User.t()} | {:error, :not_found}
   @doc """
   Gets a single user.
@@ -47,7 +47,7 @@ defmodule BlogBackend.Auth do
       iex> get_user(bad_id)
       {:error, :not_found}
   """
-  def get_user(id) when is_integer(id) do
+  def get_user(id) do
     case Repo.get(User, id) do
       %User{} = user -> {:ok, user}
       nil -> {:error, :not_found}
@@ -69,7 +69,7 @@ defmodule BlogBackend.Auth do
       Ecto.NoResultsError
 
   """
-  def get_user!(id) when is_integer(id),
+  def get_user!(id),
     do: Repo.get!(User, id)
 
   @spec get_athenticated_user(Plug.Conn.t()) ::
@@ -148,10 +148,12 @@ defmodule BlogBackend.Auth do
 
   """
   def search_user(search) do
+    search_sql = "%#{search}%"
+
     from(u in User,
       where:
-        fragment("? LIKE ?", u.username, ^"%#{search}%") or
-          fragment("? LIKE ?", u.email, ^"%#{search}%")
+        fragment("? LIKE ?", u.username, ^search_sql) or
+          fragment("? LIKE ?", u.email, ^search_sql)
     )
     |> Repo.all()
   end

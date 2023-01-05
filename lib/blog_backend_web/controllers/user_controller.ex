@@ -1,90 +1,72 @@
 defmodule BlogBackendWeb.UserController do
   use BlogBackendWeb, :controller
 
-  import Ecto.Query, warn: false
+  import BlogBackend.Auth
 
-  alias BlogBackend.Guardian
   alias BlogBackend.Auth
-  alias BlogBackend.Auth.User
+  alias BlogBackend.Guardian
+  alias BlogBackendWeb.FallbackController
 
-  @spec create(
-          Plug.Conn.t(),
-          :invalid | %{optional(:__struct__) => none, optional(atom | binary) => any}
-        ) :: Plug.Conn.t()
-  def create(conn, params) do
-    params
-    |> Auth.create_user()
-    |> case do
-      {:ok, user = %User{}} ->
-        {:ok, token, _claims} = Guardian.encode_and_sign(user, %{"typ" => "access"})
+  action_fallback FallbackController
 
-        conn
-        |> put_status(201)
-        |> render("register.json", user: user, token: token)
+  @spec index(Plug.Conn.t(), map) :: FallbackController.t()
+  def index(conn, %{"search" => search}) do
+    with users <- search_user(search),
+         do: render(conn, "index.json", users: users)
+  end
 
-      {:error, changeset = %Ecto.Changeset{}} ->
-        conn
-        |> put_status(422)
-        |> render("register.json", changeset: changeset)
+  @spec create(Plug.Conn.t(), map) :: FallbackController.t()
+  def create(conn, %{"user" => params}) do
+    with {:ok, user} <- create_user(params) do
+      conn
+      |> put_status(201)
+      |> render("id.json", user: user)
     end
   end
 
-  @spec show(Plug.Conn.t(), map) :: Plug.Conn.t()
-  def show(conn, %{"id" => user_id}) do
-    case Auth.get_user(user_id) do
-      user = %User{} ->
-        conn
-        |> put_status(200)
-        |> render("show.json", user: user)
-
-      nil ->
-        conn
-        |> put_status(404)
-        |> render("show.json")
-    end
+  @spec show(Plug.Conn.t(), map) :: FallbackController.t()
+  def show(conn, %{"id" => id}) do
+    with {:ok, user} <- get_user(id),
+         do: render(conn, "show.json", user: user)
   end
 
   @spec update(Plug.Conn.t(), map) :: Plug.Conn.t()
-  def update(conn, %{"id" => user_id, "changes" => changes}) do
-    user = Auth.get_user(user_id)
-
-    if user do
-      user
-      |> Auth.update_user(changes)
-      |> case do
-        {:ok, updated_user = %User{}} ->
-          conn
-          |> put_status(200)
-          |> render("update.json", updated_user: updated_user)
-
-        {:error, changeset = %Ecto.Changeset{}} ->
-          IO.inspect(changeset)
-
-          conn
-          |> put_status(422)
-          |> render("update.json", changeset: changeset)
-      end
-    else
-      conn
-      |> put_status(404)
-      |> render("update.json")
+  def update(conn, %{"id" => id, "changes" => changes}) do
+    with(
+      {:ok, user} <- get_user(id),
+      {:ok, auth_user} <- get_athenticated_user(conn),
+      :ok <- Bodyguard.permit(Auth, :update_user, user, auth_user),
+      {:ok, _updated_user} <- update_user(user, changes)
+    ) do
+      render(conn, "id.json", user: user)
     end
   end
 
-  @spec delete(Plug.Conn.t(), map) :: Plug.Conn.t()
-  def delete(conn, %{"id" => user_id}) do
-    case Auth.get_user(user_id) do
-      user = %User{} ->
-        Auth.delete_user(user)
+  @spec delete(Plug.Conn.t(), map) :: FallbackController.t()
+  def delete(conn, %{"id" => id}) do
+    with(
+      {:ok, user} <- get_user(id),
+      {:ok, auth_user} <- get_athenticated_user(conn),
+      :ok <- Bodyguard.permit(Auth, :delete_user, user, auth_user),
+      {:ok, _deleted_user} <- delete_user(user)
+    ) do
+      put_status(conn, 204)
+    end
+  end
 
-        conn
-        |> put_status(200)
-        |> render("delete.json", is_deleted: true)
-
-      nil ->
-        conn
-        |> put_status(404)
-        |> render("delete.json", is_deleted: false)
+  @spec login(Plug.Conn.t(), map) :: FallbackController.t()
+  def login(conn, %{
+        "credentials" => %{
+          "email" => email,
+          "password" => password
+        }
+      }) do
+    with(
+      :ok <- check_credentials(email, password),
+      {:ok, user} <- get_user_by_email(email)
+    ) do
+      {:ok, token, _claims} = Guardian.encode_and_sign(user, %{"typ" => "access"})
+      render(conn, "token.json", token: token)
     end
   end
 end

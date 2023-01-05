@@ -10,13 +10,14 @@ defmodule BlogBackendWeb.Router do
   scope "/api", BlogBackendWeb do
     pipe_through [:api, Guardian.Pipeline.EnsureNotAuth]
 
-    post "/login", AuthController, :login
-
-    resources "/user", UserController, only: [:create]
+    post "/login", UserController, :login
+    post "/register", UserController, :create
   end
 
   scope "/api", BlogBackendWeb do
     pipe_through [:api, Guardian.Pipeline.MaybeAuth]
+
+    get "/users/:search", UserController, :index
 
     resources "/user", UserController, only: [:show] do
       resources "/posts", PostController, only: [:index]

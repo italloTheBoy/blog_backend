@@ -11,7 +11,7 @@ defmodule BlogBackend.Guardian do
 
   @spec resource_from_claims(map) :: {:error, :unhandled_resource_type} | {:ok, %User{} | nil}
   def resource_from_claims(%{"sub" => "User:" <> id}),
-    do: {:ok, id |> String.to_integer() |> get_user()}
+    do: get_user(id)
 
   def resource_from_claims(_), do: {:error, :unhandled_resource_type}
 end

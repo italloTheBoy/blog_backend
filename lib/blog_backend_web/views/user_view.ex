@@ -1,74 +1,39 @@
 defmodule BlogBackendWeb.UserView do
   use BlogBackendWeb, :view
 
-  import BlogBackendWeb.ChangesetHelpers
-
   alias BlogBackend.Auth.User
 
-  def render("register.json", %{user: user = %User{}, token: token}) do
-    %{
-      message: "registro concluído",
-      user: render("user.json", user: user),
-      token: token
+  @user_fields [
+    :id,
+    :email,
+    :username
+  ]
+
+  def render("token.json", %{token: token}),
+    do: %{
+      data: %{token: token}
     }
-  end
 
-  def render("register.json", %{changeset: changeset}) do
-    %{
-      data: put_changes(changeset),
-      errors: put_errors(changeset, "não foi possivel concluír o registro")
+  def render("index.json", %{users: users})
+      when is_list(users),
+      do: %{
+        data: render_many(users, __MODULE__, "user.json")
+      }
+
+  def render("id.json", %{user: %User{} = user}),
+    do: %{
+      data: render("user.json", user: user, only: [:id])
     }
-  end
 
-  def render("show.json", %{user: user = %User{}}) do
-    %{
-      message: "usuario solicitado encontrado",
-      user: render("user.json", user: user)
+  def render("show.json", %{user: %User{} = user}),
+    do: %{
+      data: render("user.json", user: user)
     }
-  end
 
-  def render("show.json", _params) do
-    %{
-      errors: put_errors("não foi possivel encontrar o usuario solicitado")
-    }
-  end
+  def render("user.json", %{user: %User{} = user, only: selected_fields})
+      when is_list(selected_fields),
+      do: Map.take(user, selected_fields)
 
-  def render("update.json", %{updated_user: updated_user = %User{}}) do
-    %{
-      message: "os dados do usuario foram atualizados",
-      user: render("user.json", user: updated_user)
-    }
-  end
-
-  def render("update.json", %{changeset: changeset}) do
-    %{
-      data: put_changes(changeset),
-      errors: put_errors(changeset, "não foi possivel atualizar os dados do usuario")
-    }
-  end
-
-  def render("update.json", _params) do
-    %{
-      errors: put_errors("não foi possivel encontrar o usuario solicitado")
-    }
-  end
-
-  def render("delete.json", %{is_deleted: is_deleted})
-      when is_deleted do
-    %{ message: "usuario excluido" }
-  end
-
-  def render("delete.json", %{is_deleted: is_deleted})
-      when is_deleted == false do
-    %{
-      errors: put_errors("não foi possivel excluir o usuario")
-    }
-  end
-
-  def render("user.json", %{user: user = %User{}}) do
-    Map.take(
-      user,
-      [:id, :email, :username, :inserted_at, :updated_at]
-    )
-  end
+  def render("user.json", %{user: %User{} = user}),
+    do: Map.take(user, @user_fields)
 end
