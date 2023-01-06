@@ -52,6 +52,8 @@ defmodule BlogBackend.Auth do
       %User{} = user -> {:ok, user}
       nil -> {:error, :not_found}
     end
+  rescue
+    _ -> {:error, :unprocessable_entity}
   end
 
   @spec get_user!(integer()) :: User.t()

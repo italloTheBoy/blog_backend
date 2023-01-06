@@ -37,19 +37,16 @@ defmodule BlogBackend.Auth.User do
   def changeset(user = %__MODULE__{}, attrs) do
     user
     |> cast(attrs, [:username, :password, :email])
-    |> validate_email(required: true)
-    |> validate_username(required: true)
-    |> validate_password(required: true)
+    |> validate_required([:password, :username, :email], message: "prencha este campo")
+    |> validate_email()
+    |> validate_username()
+    |> validate_password()
     |> hash_password()
   end
 
-  @spec changeset_update(
-          %__MODULE__{},
-          :invalid | %{optional(:__struct__) => none, optional(atom | binary) => any}
-        ) :: Ecto.Changeset.t()
+  @spec changeset_update(%__MODULE__{}, map()) :: Ecto.Changeset.t()
   @doc """
-  The BlogBackend.Auth.User changeset function to update data"
-
+  The BlogBackend.Auth.User changeset function to update data
   """
   def changeset_update(user, attrs) do
     user
@@ -60,14 +57,8 @@ defmodule BlogBackend.Auth.User do
     |> hash_password()
   end
 
-  @spec validate_email(Ecto.Changeset.t(), Keyword.t() | map()) :: Ecto.Changeset.t()
-  defp validate_email(changeset, options \\ []) do
-    required = Keyword.get(options, :required, false)
-
-    if required == true do
-      validate_required(changeset, [:email], message: "email requerido")
-    end
-
+  @spec validate_email(Ecto.Changeset.t()) :: Ecto.Changeset.t()
+  defp validate_email(changeset) do
     changeset
     |> validate_format(:email, ~r/^[^\s]+@[^\s]+$/,
       message: "email possui espaços ou não possui um @"
@@ -78,13 +69,7 @@ defmodule BlogBackend.Auth.User do
   end
 
   @spec validate_username(Ecto.Changeset.t()) :: Ecto.Changeset.t()
-  defp validate_username(changeset, options \\ []) do
-    required = Keyword.get(options, :required, false)
-
-    if required == true do
-      validate_required(changeset, [:username], message: "nome de usuario requerido")
-    end
-
+  defp validate_username(changeset) do
     changeset
     |> validate_required([:username], message: "nome de usuario requerido")
     |> validate_format(:username, ~r/^[\S][\w]+$/,
@@ -96,17 +81,11 @@ defmodule BlogBackend.Auth.User do
   end
 
   @spec validate_password(Ecto.Changeset.t()) :: Ecto.Changeset.t()
-  defp validate_password(changeset, options \\ []) do
-    required = Keyword.get(options, :required, false)
-
-    if required == true do
-      validate_required(changeset, [:password], message: "senha requerida")
-    end
-
+  defp validate_password(changeset) do
     changeset
     |> validate_length(:password, min: 6, message: "senha curta demais")
     |> validate_length(:password, max: 20, message: "senha longa demais")
-    |> validate_confirmation(:password, required: required, message: "as senhas não batem")
+    |> validate_confirmation(:password, message: "as senhas não batem")
   end
 
   @spec hash_password(Ecto.Changeset.t()) :: Ecto.Changeset.t()

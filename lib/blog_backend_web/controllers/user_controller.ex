@@ -69,4 +69,11 @@ defmodule BlogBackendWeb.UserController do
       render(conn, "token.json", token: token)
     end
   end
+
+  def login(conn, %{"credentials" => _}),
+    do:
+      conn
+      |> put_status(422)
+      |> put_view(BlogBackendWeb.ErrorView)
+      |> render("422.json")
 end

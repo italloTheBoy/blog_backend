@@ -440,7 +440,7 @@ defmodule BlogBackendWeb.ReactionControllerTest do
   defp login(%{conn: conn}) do
     user = user_fixture()
     token = token_fixture(user)
-    
+
     conn = put_req_header(conn, "authorization", token)
 
     %{conn: conn, user: user, token: token}
