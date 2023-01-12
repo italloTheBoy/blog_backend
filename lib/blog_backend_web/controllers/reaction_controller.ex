@@ -130,7 +130,7 @@ defmodule BlogBackendWeb.ReactionController do
       :ok <- Bodyguard.permit(Timeline, :update_reaction, user, reaction),
       {:ok, _deleted_reaction} <- delete_reaction(reaction)
     ) do
-      put_status(conn, 204)
+      send_resp(conn, 204, "")
     end
   end
 end

@@ -80,7 +80,7 @@ defmodule BlogBackendWeb.CommentController do
       :ok <- Bodyguard.permit(Timeline, :delete_comment, user, comment),
       {:ok, _deleted_comment} <- Timeline.delete_comment(comment)
     ) do
-      put_status(conn, 204)
+      send_resp(conn, 204, "")
     end
   end
 end

@@ -196,10 +196,8 @@ defmodule BlogBackendWeb.CommentControllerTest do
       conn: conn,
       comment: comment
     } do
-      conn = get(conn, Routes.comment_path(conn, :show, comment))
-      assert %{} != json_response(conn, 200)
-
       conn = delete(conn, Routes.comment_path(conn, :delete, comment.id))
+      assert response(conn, 204)
 
       conn = get(conn, Routes.comment_path(conn, :show, comment))
       assert %{"detail" => "Not Found"} == json_response(conn, 404)["errors"]

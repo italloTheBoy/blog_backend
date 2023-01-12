@@ -338,9 +338,10 @@ defmodule BlogBackendWeb.ReactionControllerTest do
       conn: conn,
       reaction: reaction
     } do
-      delete(conn, Routes.reaction_path(conn, :delete, reaction.id))
-      conn = get(conn, Routes.reaction_path(conn, :show, reaction))
+      conn = delete(conn, Routes.reaction_path(conn, :delete, reaction.id))
+      assert response(conn, 204)
 
+      conn = get(conn, Routes.reaction_path(conn, :show, reaction))
       assert %{"detail" => "Not Found"} == json_response(conn, 404)["errors"]
     end
 

@@ -125,21 +125,22 @@ defmodule BlogBackendWeb.UserControllerTest do
     @tag user_controller: "user_delete"
     test "deletes an user", %{conn: conn, user: user} do
       conn = delete(conn, Routes.user_path(conn, :delete, user.id))
-      conn = get(conn, Routes.user_path(conn, :show, user.id))
+      assert response(conn, 204)
 
-      assert %{} != json_response(conn, 404)["errors"]
+      conn = get(conn, Routes.user_path(conn, :show, user.id))
+      assert json_response(conn, 404)
     end
 
     @tag user_controller: "user_delete"
     test "when user cant be finded returns an error", %{conn: conn} do
       conn = delete(conn, Routes.user_path(conn, :delete, 0))
-      assert %{} != json_response(conn, 404)["errors"]
+      assert json_response(conn, 404)
     end
 
     @tag user_controller: "user_delete"
     test "when recived id is invalid returns an error", %{conn: conn} do
       conn = delete(conn, Routes.user_path(conn, :delete, "invalid"))
-      assert %{} != json_response(conn, 422)["errors"]
+      assert json_response(conn, 422)
     end
   end
 
@@ -172,6 +173,21 @@ defmodule BlogBackendWeb.UserControllerTest do
     test "with invalid credentials returns an error", %{conn: conn} do
       conn = post(conn, Routes.user_path(conn, :login), credentials: %{})
       assert json_response(conn, 422)
+    end
+  end
+
+  describe "show auth user" do
+    setup [:login]
+
+    @tag user_controller: "show_auth_user"
+    test "return the authenhoticated user", %{
+      conn: conn,
+      user: user
+    } do
+      conn = get(conn, Routes.user_path(conn, :show_auth_user))
+
+      assert render(UserView, "show.json", user: user) ==
+               json_response(conn, 200)
     end
   end
 

@@ -106,10 +106,8 @@ defmodule BlogBackendWeb.PostControllerTest do
 
     @tag post_controller: "delete_post"
     test "DELETE /api/post/:id with existent id delete a post", %{conn: conn, post: post} do
-      conn = get(conn, Routes.post_path(conn, :show, post.id))
-      assert %{} != json_response(conn, 200)
-
       conn = delete(conn, Routes.post_path(conn, :delete, post.id))
+      assert response(conn, 204)
 
       conn = get(conn, Routes.post_path(conn, :show, post.id))
       assert %{"detail" => "Not Found"} == json_response(conn, 404)["errors"]

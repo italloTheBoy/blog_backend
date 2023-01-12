@@ -48,7 +48,7 @@ defmodule BlogBackendWeb.PostController do
       :ok <- Bodyguard.permit(Timeline, :delete_post, user, post),
       {:ok, _deleted_post} <- delete_post(post)
     ) do
-      put_status(conn, 204)
+      send_resp(conn, 204, "")
     end
   end
 end

@@ -30,6 +30,12 @@ defmodule BlogBackendWeb.UserController do
          do: render(conn, "show.json", user: user)
   end
 
+  @spec show_auth_user(Plug.Conn.t(), map) :: FallbackController.t()
+  def show_auth_user(conn, _) do
+    with {:ok, user} <- get_athenticated_user(conn),
+         do: render(conn, "show.json", user: user)
+  end
+
   @spec update(Plug.Conn.t(), map) :: Plug.Conn.t()
   def update(conn, %{"id" => id, "changes" => changes}) do
     with(
@@ -50,7 +56,7 @@ defmodule BlogBackendWeb.UserController do
       :ok <- Bodyguard.permit(Auth, :delete_user, user, auth_user),
       {:ok, _deleted_user} <- delete_user(user)
     ) do
-      put_status(conn, 204)
+      send_resp(conn, 204, "")
     end
   end
 

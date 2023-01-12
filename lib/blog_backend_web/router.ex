@@ -39,6 +39,7 @@ defmodule BlogBackendWeb.Router do
   scope "/api", BlogBackendWeb do
     pipe_through [:api, Guardian.Pipeline.EnsureAuth]
 
+    get "/auth/user", UserController, :show_auth_user
     resources "/user", UserController, only: [:update, :delete]
 
     resources "/post", PostController, only: [:create, :delete] do
