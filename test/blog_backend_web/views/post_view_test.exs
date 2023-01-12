@@ -14,8 +14,11 @@ defmodule BlogBackendWeb.PostViewTest do
 
   @tag post_view: "index"
   test "renders index.json", %{post: post} do
-    assert %{data: [take_post(post)]} ==
-             View.render(PostView, "index.json", posts: [post])
+    assert %{
+             data: %{
+               posts: [take_post(post)]
+             }
+           } == View.render(PostView, "index.json", posts: [post])
   end
 
   @tag post_view: "id"
@@ -26,8 +29,9 @@ defmodule BlogBackendWeb.PostViewTest do
 
   @tag post_view: "show"
   test "renders show.json", %{post: post} do
-    assert %{data: take_post(post)} ==
-             View.render(PostView, "show.json", post: post)
+    assert %{
+             data: %{post: take_post(post)}
+           } == View.render(PostView, "show.json", post: post)
   end
 
   describe "renders post.json" do

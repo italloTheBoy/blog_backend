@@ -66,7 +66,7 @@ defmodule BlogBackendWeb.ReactionControllerTest do
                "post_id" => post.id,
                "comment_id" => nil,
                "type" => @create_attrs.type
-             } == json_response(conn, 200)["data"]
+             } == json_response(conn, 200)["data"]["reaction"]
     end
 
     @tag reaction_controller: "create_post_reaction"
@@ -117,7 +117,7 @@ defmodule BlogBackendWeb.ReactionControllerTest do
                "post_id" => nil,
                "comment_id" => comment.id,
                "type" => @create_attrs.type
-             } == json_response(conn, 200)["data"]
+             } == json_response(conn, 200)["data"]["reaction"]
     end
 
     @tag reaction_controller: "create_post_reaction"
@@ -311,7 +311,8 @@ defmodule BlogBackendWeb.ReactionControllerTest do
 
       conn = get(conn, Routes.reaction_path(conn, :show, reaction.id))
 
-      assert toggle_reaction_type.(reaction.type) == json_response(conn, 200)["data"]["type"]
+      assert toggle_reaction_type.(reaction.type) ==
+               json_response(conn, 200)["data"]["reaction"]["type"]
     end
 
     @tag reaction_controller: "update_reaction"

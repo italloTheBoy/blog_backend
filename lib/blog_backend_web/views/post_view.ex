@@ -7,17 +7,17 @@ defmodule BlogBackendWeb.PostView do
 
   def render("id.json", %{post: %Post{} = post}),
     do: %{
-      data: render("post.json", post: post, only: [:id])
+      data: %{id: post.id}
     }
 
   def render("index.json", %{posts: posts}) when is_list(posts),
     do: %{
-      data: render_many(posts, __MODULE__, "post.json")
+      data: %{posts: render_many(posts, __MODULE__, "post.json")}
     }
 
   def render("show.json", %{post: post}),
     do: %{
-      data: render("post.json", post: post)
+      data: %{post: render("post.json", post: post)}
     }
 
   def render("post.json", %{post: post, only: selected_fields})

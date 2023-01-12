@@ -39,7 +39,7 @@ defmodule BlogBackendWeb.UserControllerTest do
     @tag user_controller: "user_index"
     test "fecthes many users with given the data", %{conn: conn, user: user} do
       conn = get(conn, Routes.user_path(conn, :index, false))
-      assert [] == json_response(conn, 200)["data"]
+      assert [] == json_response(conn, 200)["data"]["users"]
 
       conn = get(conn, Routes.user_path(conn, :index, user.username))
       assert render(UserView, "index.json", users: [user]) == json_response(conn, 200)

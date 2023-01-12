@@ -20,8 +20,11 @@ defmodule BlogBackendWeb.CommentViewTest do
 
   @tag post_view: "index"
   test "renders index.json", %{comment: comment} do
-    assert %{data: [take_comment(comment)]} ==
-             View.render(CommentView, "index.json", comments: [comment])
+    assert %{
+             data: %{
+               comments: [take_comment(comment)]
+             }
+           } == View.render(CommentView, "index.json", comments: [comment])
   end
 
   @tag post_view: "id"
@@ -32,8 +35,11 @@ defmodule BlogBackendWeb.CommentViewTest do
 
   @tag post_view: "show"
   test "renders show.json", %{comment: comment} do
-    assert %{data: take_comment(comment)} ==
-             View.render(CommentView, "show.json", comment: comment)
+    assert %{
+             data: %{
+               comment: take_comment(comment)
+             }
+           } == View.render(CommentView, "show.json", comment: comment)
   end
 
   describe "renders comment.json" do

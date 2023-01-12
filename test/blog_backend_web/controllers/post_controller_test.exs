@@ -60,12 +60,13 @@ defmodule BlogBackendWeb.PostControllerTest do
       assert %{"id" => id} = json_response(conn, 201)["data"]
 
       conn = get(conn, Routes.post_path(conn, :show, id))
+
       assert %{
                "id" => id,
                "user_id" => user.id,
                "title" => @create_attrs.title,
                "body" => @create_attrs.body
-             } == json_response(conn, 200)["data"]
+             } == json_response(conn, 200)["data"]["post"]
     end
 
     @tag post_controller: "create_post"

@@ -6,22 +6,22 @@ defmodule BlogBackendWeb.CommentView do
     :user_id,
     :post_id,
     :comment_id,
-    :body,
+    :body
   ]
 
   def render("index.json", %{comments: comments}),
     do: %{
-      data: render_many(comments, __MODULE__, "comment.json")
+      data: %{comments: render_many(comments, __MODULE__, "comment.json")}
     }
 
   def render("id.json", %{comment: comment}),
     do: %{
-      data: render("comment.json", comment: comment, only: [:id])
+      data: %{id: comment.id}
     }
 
   def render("show.json", %{comment: comment}),
     do: %{
-      data: render("comment.json", comment: comment)
+      data: %{comment: render("comment.json", comment: comment)}
     }
 
   def render("comment.json", %{comment: comment, only: selected_fields})

@@ -13,17 +13,17 @@ defmodule BlogBackendWeb.ReactionView do
   def render("index.json", %{reactions: reactions})
       when is_list(reactions),
       do: %{
-        data: render_many(reactions, __MODULE__, "reaction.json")
+        data: %{reactions: render_many(reactions, __MODULE__, "reaction.json")}
       }
 
   def render("id.json", %{reaction: %Reaction{} = reaction}),
     do: %{
-      data: render("reaction.json", reaction: reaction, only: [:id])
+      data: %{id: reaction.id}
     }
 
   def render("show.json", %{reaction: %Reaction{} = reaction}),
     do: %{
-      data: render("reaction.json", reaction: reaction)
+      data: %{reaction: render("reaction.json", reaction: reaction)}
     }
 
   def render("reaction.json", %{reaction: %Reaction{} = reaction, only: selected_fields})

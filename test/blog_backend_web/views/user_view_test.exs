@@ -29,9 +29,11 @@ defmodule BlogBackendWeb.UserViewTest do
   test("renders index.json", %{user: user},
     do:
       assert(
-        View.render(UserView, "index.json", users: [user]) == %{
-          data: [take_user(user)]
-        }
+        %{
+          data: %{
+            users: [take_user(user)]
+          }
+        } == View.render(UserView, "index.json", users: [user])
       )
   )
 
@@ -49,9 +51,11 @@ defmodule BlogBackendWeb.UserViewTest do
   test("renders show.json", %{user: user},
     do:
       assert(
-        View.render(UserView, "show.json", user: user) == %{
-          data: take_user(user)
-        }
+        %{
+          data: %{
+            user: take_user(user)
+          }
+        } == View.render(UserView, "show.json", user: user)
       )
   )
 

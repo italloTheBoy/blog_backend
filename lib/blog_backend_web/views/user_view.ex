@@ -17,17 +17,17 @@ defmodule BlogBackendWeb.UserView do
   def render("index.json", %{users: users})
       when is_list(users),
       do: %{
-        data: render_many(users, __MODULE__, "user.json")
+        data: %{users: render_many(users, __MODULE__, "user.json")}
       }
 
   def render("id.json", %{user: %User{} = user}),
     do: %{
-      data: render("user.json", user: user, only: [:id])
+      data: %{id: user.id}
     }
 
   def render("show.json", %{user: %User{} = user}),
     do: %{
-      data: render("user.json", user: user)
+      data: %{user: render("user.json", user: user)}
     }
 
   def render("user.json", %{user: %User{} = user, only: selected_fields})

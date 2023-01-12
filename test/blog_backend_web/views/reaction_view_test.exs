@@ -23,7 +23,9 @@ defmodule BlogBackendWeb.ReactionViewTest do
     do:
       assert(
         View.render(ReactionView, "index.json", reactions: [reaction]) == %{
-          data: [take_reaction(reaction)]
+          data: %{
+            reactions: [take_reaction(reaction)]
+          }
         }
       )
   )
@@ -43,7 +45,9 @@ defmodule BlogBackendWeb.ReactionViewTest do
     do:
       assert(
         View.render(ReactionView, "show.json", reaction: reaction) == %{
-          data: take_reaction(reaction)
+          data: %{
+            reaction: take_reaction(reaction)
+          }
         }
       )
   )

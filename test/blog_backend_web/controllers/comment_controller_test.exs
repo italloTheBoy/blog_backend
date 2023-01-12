@@ -116,7 +116,7 @@ defmodule BlogBackendWeb.CommentControllerTest do
                "post_id" => post.id,
                "comment_id" => nil,
                "body" => @create_attrs.body
-             } == json_response(conn, 200)["data"]
+             } == json_response(conn, 200)["data"]["comment"]
     end
 
     @tag comment_controller: "create_post_comment"
@@ -149,7 +149,7 @@ defmodule BlogBackendWeb.CommentControllerTest do
                "post_id" => nil,
                "comment_id" => comment.id,
                "body" => @create_attrs.body
-             } == json_response(conn, 200)["data"]
+             } == json_response(conn, 200)["data"]["comment"]
     end
 
     @tag comment_controller: "create_comment_comment"
