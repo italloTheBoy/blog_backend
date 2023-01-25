@@ -64,7 +64,6 @@ defmodule BlogBackendWeb.PostControllerTest do
       assert %{
                "id" => id,
                "user_id" => user.id,
-               "title" => @create_attrs.title,
                "body" => @create_attrs.body
              } == json_response(conn, 200)["data"]["post"]
     end

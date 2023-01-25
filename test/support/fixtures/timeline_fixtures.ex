@@ -22,7 +22,6 @@ defmodule BlogBackend.TimelineFixtures do
       attrs
       |> Enum.into(%{
         body: "some text",
-        title: "some title",
         user_id: user.id
       })
       |> create_post()

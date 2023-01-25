@@ -8,7 +8,6 @@ defmodule BlogBackend.Timeline.Post do
   alias BlogBackend.Timeline.{Post, Comment}
 
   schema "posts" do
-    field :title, :string
     field :body, :string
 
     belongs_to :user, User
@@ -25,31 +24,21 @@ defmodule BlogBackend.Timeline.Post do
           user: User.t(),
           comments: [Comment.t()],
           reactions: [Reaction.t()],
-          title: String.t(),
           body: String.t()
         }
 
-  @spec changeset(
-          %__MODULE__{},
-          :invalid | %{optional(:__struct__) => none, optional(atom | binary) => any}
-        ) :: Ecto.Changeset.t()
+  @spec changeset(%__MODULE__{}, map) :: Ecto.Changeset.t()
   @doc false
   def changeset(post = %Post{}, attrs) do
     post
-    |> cast(attrs, [:title, :body, :user_id])
-    |> validate_required([:title, :body], message: "Preencha este campo")
-    |> validate_title()
+    |> cast(attrs, [:body, :user_id])
     |> validate_body()
     |> validate_user()
   end
 
-  defp validate_title(%Ecto.Changeset{} = changeset) do
-    changeset
-    |> validate_length(:title, max: 50, message: "Título miuto longo")
-  end
-
   defp validate_body(%Ecto.Changeset{} = changeset) do
     changeset
+    |> validate_required([:body], message: "Preencha este campo")
     |> validate_length(:body, max: 500, message: "Conteúdo miuto longo")
   end
 

@@ -15,7 +15,7 @@ defmodule BlogBackend.TimelineTest do
   @moduletag :timeline
 
   describe "post" do
-    @invalid_attrs %{user_id: nil, body: nil, title: nil}
+    @invalid_attrs %{user_id: nil, body: nil}
 
     @tag posts: "create_post"
     test "create_post/1 with valid data creates a post" do
@@ -23,13 +23,11 @@ defmodule BlogBackend.TimelineTest do
 
       valid_attrs = %{
         user_id: user.id,
-        title: "some title",
         body: "some body"
       }
 
       assert {:ok, %Post{} = post} = Timeline.create_post(valid_attrs)
       assert post.user_id == user.id
-      assert post.title == "some title"
       assert post.body == "some body"
     end
 

@@ -3,7 +3,7 @@ defmodule BlogBackendWeb.PostView do
 
   alias BlogBackend.Timeline.Post
 
-  @post_fields [:id, :user_id, :title, :body]
+  @post_fields [:id, :user_id, :body]
 
   def render("id.json", %{post: %Post{} = post}),
     do: %{
