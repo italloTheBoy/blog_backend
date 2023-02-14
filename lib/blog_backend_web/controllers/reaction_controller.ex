@@ -5,7 +5,6 @@ defmodule BlogBackendWeb.ReactionController do
 
   alias BlogBackend.Timeline
   alias BlogBackendWeb.FallbackController
-  alias BlogBackendWeb.GlobalView
 
   action_fallback BlogBackendWeb.FallbackController
 
@@ -87,26 +86,24 @@ defmodule BlogBackendWeb.ReactionController do
     end
   end
 
-  @spec count(Plug.Conn.t(), map) :: FallbackController.t()
-  def count(conn, %{"post_id" => id}) do
+  @spec metrics(Plug.Conn.t(), map) :: FallbackController.t()
+  def metrics(conn, %{"post_id" => id}) do
     with(
       {:ok, post} <- get_post(id),
-      reactions_count <- count_post_reactions(post)
+      reactions_statics <- get_reactions_metrics(post)
     ) do
       conn
-      |> put_view(GlobalView)
-      |> render("count.json", count: reactions_count)
+      |> render("metrics.json", reactions_statics)
     end
   end
 
-  def count(conn, %{"comment_id" => id}) do
+  def metrics(conn, %{"comment_id" => id}) do
     with(
       {:ok, comment} <- get_comment(id),
-      reactions_count <- count_comment_reactions(comment)
+      reactions_statics <- get_reactions_metrics(comment)
     ) do
       conn
-      |> put_view(GlobalView)
-      |> render("count.json", count: reactions_count)
+      |> render("metrics.json", reactions_statics)
     end
   end
 

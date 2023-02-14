@@ -42,7 +42,7 @@ defmodule BlogBackend.Timeline do
       iex> get_post(22)
       {:ok, %Post{}}
 
-      iex> get_post(11)
+      iex> w(11)
       {:error, :not_found}
 
       iex> get_post(:invalid)
@@ -77,36 +77,59 @@ defmodule BlogBackend.Timeline do
   @spec get_post!(non_neg_integer()) :: Post.t()
   def get_post!(id), do: Repo.get!(Post, id)
 
+  @spec get_reactions_metrics(Post.t() | Comment.t()) :: [
+          reactions: non_neg_integer(),
+          likes: non_neg_integer(),
+          dislikes: non_neg_integer()
+        ]
+
   @doc """
-  Count a post comments.
+  Returns reations metrics from an post or comment
 
   ## Examples
 
-      iex> count_post_comments(%Post{})
-      0
+      iex> get_reactions_metrics(%Post{reactions: []})
+      [
+        reactions: 0,
+        likes: 0,
+        dislikes: 0
+      ]
+
+      iex> get_reactions_metrics(%Comment{reactions: []})
+      [
+        reactions: 0,
+        likes: 0,
+        dislikes: 0
+      ]
 
   """
   @spec count_post_comments(Post.t() | non_neg_integer()) :: non_neg_integer()
-  def count_post_comments(%Post{} = post) do
-    %Post{comments: comments} = Repo.preload(post, :comments)
+  def count_post_comments(%Post{} = post),
+    do:
+      post
+      |> Repo.preload(:comments)
+      |> Map.get(:comments)
+      |> length()
 
-    length(comments)
+  def get_reactions_metrics(reactable_entity)
+      when is_struct(reactable_entity, Post) or is_struct(reactable_entity, Comment) do
+    reactable_entity
+    |> Repo.preload(:reactions)
+    |> Map.get(:reactions)
+    |> filter_reactions()
+    |> Enum.map(fn {k, v} -> {k, length(v)} end)
   end
 
-  @doc """
-  Count a post reactions.
+  defp filter_reactions(reactions) do
+    likes = filter_reactions_by_type(reactions, "like")
+    dislikes = filter_reactions_by_type(reactions, "dislike")
 
-  ## Examples
+    [reactions: reactions, likes: likes, dislikes: dislikes]
+  end
 
-      iex> count_post_reactions(%Post{})
-      0
-
-  """
-  @spec count_post_reactions(Post.t()) :: non_neg_integer()
-  def count_post_reactions(%Post{} = post) do
-    %Post{reactions: reactions} = Repo.preload(post, :reactions)
-
-    length(reactions)
+  defp filter_reactions_by_type(reactions, type)
+       when type == "like" or type == "dislike" do
+    Enum.filter(reactions, fn reaction -> reaction.type == type end)
   end
 
   @doc """
@@ -126,7 +149,8 @@ defmodule BlogBackend.Timeline do
 
   def list_user_posts(user_id) do
     from(p in Post,
-      where: p.user_id == ^user_id
+      where: p.user_id == ^user_id,
+      order_by: [desc: p.inserted_at]
     )
     |> Repo.all()
   end
@@ -231,22 +255,6 @@ defmodule BlogBackend.Timeline do
   """
   @spec get_comment!(non_neg_integer()) :: Comment.t() | nil
   def get_comment!(id), do: Repo.get!(Comment, id)
-
-  @spec count_comment_reactions(Comment.t()) :: non_neg_integer()
-  @doc """
-  Count a comment reactions.
-
-  ## Examples
-
-      iex> count_comment_reactions(%Commet{})
-      0
-
-  """
-  def count_comment_reactions(%Comment{} = comment) do
-    %Comment{reactions: reactions} = Repo.preload(comment, :reactions)
-
-    length(reactions)
-  end
 
   @spec list_user_comments(User.t()) :: [Comment.t()]
   @doc """

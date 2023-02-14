@@ -26,6 +26,20 @@ defmodule BlogBackendWeb.ReactionView do
       data: %{reaction: render("reaction.json", reaction: reaction)}
     }
 
+  def render("metrics.json", %{
+        reactions: reactions,
+        likes: likes,
+        dislikes: dislikes
+      })
+      when is_integer(reactions) and is_integer(likes) and is_integer(dislikes),
+      do: %{
+        data: %{
+          reactions: reactions,
+          likes: likes,
+          dislikes: dislikes
+        }
+      }
+
   def render("reaction.json", %{reaction: %Reaction{} = reaction, only: selected_fields})
       when is_list(selected_fields),
       do: Map.take(reaction, selected_fields)

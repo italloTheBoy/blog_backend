@@ -374,6 +374,31 @@ defmodule BlogBackend.TimelineTest do
       reaction = reaction_fixture()
       assert %Ecto.Changeset{} = Timeline.change_reaction(reaction)
     end
+
+    @tag comments_reactions: "get_reactions_metrics"
+    test "get_reactions_metrics/1 with valid %Post{} return his metrics" do
+      %Reaction{post_id: post_id} = reaction_fixture(%{father: :post})
+
+      %Post{} = post = get_post!(post_id)
+
+      assert [reactions: 1, likes: 1, dislikes: 0] ||
+               [reactions: 1, likes: 0, dislikes: 1] == get_reactions_metrics(post)
+    end
+
+    @tag comments_reactions: "get_reactions_metrics"
+    test "get_reactions_metrics/1 with valid %Comment{} return his metrics" do
+      %Reaction{comment_id: comment_id} = reaction_fixture(%{father: :comment})
+
+      %Comment{} = comment = get_comment!(comment_id)
+
+      assert [reactions: 1, likes: 1, dislikes: 0] ||
+               [reactions: 1, likes: 0, dislikes: 1] == get_reactions_metrics(comment)
+    end
+
+    @tag comments_reactions: "get_reactions_metrics"
+    test "get_reactions_metrics/1 with invalid data raise the app" do
+      assert_raise FunctionClauseError, fn -> get_reactions_metrics(nil) end
+    end
   end
 
   describe "users_posts" do
@@ -453,38 +478,6 @@ defmodule BlogBackend.TimelineTest do
     @tag posts_comments: "list_post_comments"
     test "list_post_comments/1 with invalid data raise the app" do
       assert :function_clause == list_post_comments("invalid") |> catch_error()
-    end
-  end
-
-  describe "posts_reactions" do
-    @tag posts_reactions: "count_post_reactions"
-    test "count_post_reactions/1 with %Post{} returns the number of reactions" do
-      post = post_fixture()
-
-      assert 0 == Timeline.count_post_reactions(post)
-    end
-
-    @tag posts_reactions: "count_post_reactions"
-    test "count_post_reactions/1 with invalid param raise the app" do
-      assert :function_clause =
-               Timeline.count_post_reactions(:invalid)
-               |> catch_error()
-    end
-  end
-
-  describe "comments_reactions" do
-    @tag comments_reactions: "count_comment_reactions"
-    test "count_comment_reactions/1 with valid %Comment{} count her reactions" do
-      %Reaction{comment_id: comment_id} = reaction_fixture(%{father: :comment})
-
-      %Comment{} = comment = get_comment!(comment_id)
-
-      assert 1 == count_comment_reactions(comment)
-    end
-
-    @tag comments_reactions: "count_comment_reactions"
-    test "count_comment_reactions/1 with invalid data raise the app" do
-      assert_raise FunctionClauseError, fn -> count_comment_reactions(nil) end
     end
   end
 end

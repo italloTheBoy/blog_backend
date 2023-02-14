@@ -74,6 +74,22 @@ defmodule BlogBackendWeb.ReactionViewTest do
     end
   end
 
+  @tag reaction_view: "metrics"
+  test "metrics" do
+    metrics = %{
+      reactions: System.unique_integer([:positive]),
+      likes: System.unique_integer([:positive]),
+      dislikes: System.unique_integer([:positive])
+    }
+
+    assert %{data: metrics} ==
+             View.render(ReactionView, "metrics.json",
+               reactions: metrics.reactions,
+               likes: metrics.likes,
+               dislikes: metrics.dislikes
+             )
+  end
+
   defp take_reaction(reaction, selected_fields \\ @reaction_fields)
        when is_list(selected_fields),
        do: Map.take(reaction, selected_fields)

@@ -236,62 +236,6 @@ defmodule BlogBackendWeb.ReactionControllerTest do
     end
   end
 
-  describe "count post reactions" do
-    setup [:create_post, :create_reaction]
-
-    @tag reaction_controller: "count_post_reactions"
-    test "count reactions in a post", %{
-      conn: conn,
-      post: post
-    } do
-      conn = get(conn, Routes.post_reaction_path(conn, :count, post.id))
-
-      assert %{"count" => 1} == json_response(conn, 200)["data"]
-    end
-
-    @tag reaction_controller: "count_post_reactions"
-    test "renders an error when post cant be finded", %{conn: conn} do
-      conn = get(conn, Routes.post_reaction_path(conn, :count, 0))
-
-      assert %{"detail" => "Not Found"} == json_response(conn, 404)["errors"]
-    end
-
-    @tag reaction_controller: "count_post_reactions"
-    test "with invalid data renders an error", %{conn: conn} do
-      conn = get(conn, Routes.post_reaction_path(conn, :count, "invalid"))
-
-      assert %{"detail" => "Unprocessable Entity"} == json_response(conn, 422)["errors"]
-    end
-  end
-
-  describe "count comment reactions" do
-    setup [:create_comment, :create_reaction]
-
-    @tag reaction_controller: "count_comment_reactions"
-    test "count reactions in a comment", %{
-      conn: conn,
-      comment: comment
-    } do
-      conn = get(conn, Routes.comment_reaction_path(conn, :count, comment.id))
-
-      assert %{"count" => 1} == json_response(conn, 200)["data"]
-    end
-
-    @tag reaction_controller: "count_comment_reactions"
-    test "renders an error when comment cant be finded", %{conn: conn} do
-      conn = get(conn, Routes.comment_reaction_path(conn, :count, 0))
-
-      assert %{"detail" => "Not Found"} == json_response(conn, 404)["errors"]
-    end
-
-    @tag reaction_controller: "count_comment_reactions"
-    test "with invalid data renders an error", %{conn: conn} do
-      conn = get(conn, Routes.comment_reaction_path(conn, :count, "invalid"))
-
-      assert %{"detail" => "Unprocessable Entity"} == json_response(conn, 422)["errors"]
-    end
-  end
-
   describe "update reaction" do
     setup [:login, :create_reaction]
 
@@ -357,6 +301,56 @@ defmodule BlogBackendWeb.ReactionControllerTest do
       conn = delete(conn, Routes.reaction_path(conn, :delete, "invalid"))
 
       assert %{"detail" => "Unprocessable Entity"} == json_response(conn, 422)["errors"]
+    end
+  end
+
+  describe "post reactions metrics" do
+    setup [:create_post]
+
+    @tag reaction_controller: "post_reactions_metrics"
+    test "with post id render reactions his metrics", %{
+      conn: conn,
+      post: post
+    } do
+      conn = get(conn, Routes.post_reaction_path(conn, :metrics, post.id))
+      assert json_response(conn, 200)
+    end
+
+    @tag reaction_controller: "post_reactions_metrics"
+    test "with inexistent id render renders an error", %{conn: conn} do
+      conn = get(conn, Routes.post_reaction_path(conn, :metrics, 0))
+      assert json_response(conn, 404)
+    end
+
+    @tag reaction_controller: "post_reactions_metrics"
+    test "with invalid id render renders an error", %{conn: conn} do
+      conn = get(conn, Routes.post_reaction_path(conn, :metrics, "invalid"))
+      assert json_response(conn, 422)
+    end
+  end
+
+  describe "comment reactions metrics" do
+    setup [:create_comment]
+
+    @tag reaction_controller: "comment_reactions_metrics"
+    test "with comment id render reactions his metrics", %{
+      conn: conn,
+      comment: comment
+    } do
+      conn = get(conn, Routes.comment_reaction_path(conn, :metrics, comment.id))
+      assert json_response(conn, 200)
+    end
+
+    @tag reaction_controller: "comment_reactions_metrics"
+    test "with inexistent id render renders an error", %{conn: conn} do
+      conn = get(conn, Routes.comment_reaction_path(conn, :metrics, 0))
+      assert json_response(conn, 404)
+    end
+
+    @tag reaction_controller: "comment_reactions_metrics"
+    test "with invalid id render renders an error", %{conn: conn} do
+      conn = get(conn, Routes.comment_reaction_path(conn, :metrics, "invalid"))
+      assert json_response(conn, 422)
     end
   end
 

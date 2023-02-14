@@ -27,12 +27,12 @@ defmodule BlogBackendWeb.Router do
 
     resources "/post", PostController, only: [:show] do
       resources "/comments", CommentController, only: [:index]
-      get "/reactions/count", ReactionController, :count
+      get "/reactions/metrics", ReactionController, :metrics
     end
 
     resources "/comment", CommentController, only: [:show] do
       resources "/comments", CommentController, only: [:index]
-      get "/reactions/count", ReactionController, :count
+      get "/reactions/metrics", ReactionController, :metrics
     end
   end
 
