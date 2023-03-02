@@ -9,6 +9,10 @@ defmodule BlogBackend.Timeline do
 
   import Ecto.Query, warn: false
 
+  @type commentable_entity :: Post.t() | Comment.t()
+  @type reactable_entity :: Post.t() | Comment.t()
+  @type metricable_entity :: Post.t() | Comment.t()
+
   @spec authorize(atom, User.t(), nil | Post.t() | Comment.t() | Reaction.t()) ::
           :ok | {:error, :forbidden}
   defdelegate authorize(action, user, params), to: BlogBackend.Timeline.Policy
@@ -76,61 +80,6 @@ defmodule BlogBackend.Timeline do
   """
   @spec get_post!(non_neg_integer()) :: Post.t()
   def get_post!(id), do: Repo.get!(Post, id)
-
-  @spec get_reactions_metrics(Post.t() | Comment.t()) :: [
-          reactions: non_neg_integer(),
-          likes: non_neg_integer(),
-          dislikes: non_neg_integer()
-        ]
-
-  @doc """
-  Returns reations metrics from an post or comment
-
-  ## Examples
-
-      iex> get_reactions_metrics(%Post{reactions: []})
-      [
-        reactions: 0,
-        likes: 0,
-        dislikes: 0
-      ]
-
-      iex> get_reactions_metrics(%Comment{reactions: []})
-      [
-        reactions: 0,
-        likes: 0,
-        dislikes: 0
-      ]
-
-  """
-  @spec count_post_comments(Post.t() | non_neg_integer()) :: non_neg_integer()
-  def count_post_comments(%Post{} = post),
-    do:
-      post
-      |> Repo.preload(:comments)
-      |> Map.get(:comments)
-      |> length()
-
-  def get_reactions_metrics(reactable_entity)
-      when is_struct(reactable_entity, Post) or is_struct(reactable_entity, Comment) do
-    reactable_entity
-    |> Repo.preload(:reactions)
-    |> Map.get(:reactions)
-    |> filter_reactions()
-    |> Enum.map(fn {k, v} -> {k, length(v)} end)
-  end
-
-  defp filter_reactions(reactions) do
-    likes = filter_reactions_by_type(reactions, "like")
-    dislikes = filter_reactions_by_type(reactions, "dislike")
-
-    [reactions: reactions, likes: likes, dislikes: dislikes]
-  end
-
-  defp filter_reactions_by_type(reactions, type)
-       when type == "like" or type == "dislike" do
-    Enum.filter(reactions, fn reaction -> reaction.type == type end)
-  end
 
   @doc """
   Returns all user posts.
@@ -273,35 +222,128 @@ defmodule BlogBackend.Timeline do
   end
 
   @doc """
-  Returns all post comments.
+  Returns all %Post{} or %Comment{} comments.
 
   ## Examples
 
-      iex> list_post_comments( %Post{})
+      iex> list_comments(%Post{})
+      [%Comment{}, ...]
+
+      iex> list_comments (%Comment{})
       [%Comment{}, ...]
 
   """
-  @spec list_post_comments(Post.t()) :: [Comment.t()]
-  def list_post_comments(%Post{} = post) do
-    post
+  @spec list_comments(commentable_entity) :: [Comment.t()]
+  def list_comments(commentable)
+      when is_struct(commentable, Post) or is_struct(commentable, Comment) do
+    commentable
     |> Repo.preload([:comments])
     |> Map.get(:comments)
   end
 
+  @spec list_reactions(reactable_entity) :: [Reaction.t()]
   @doc """
-  Returns all comment comments.
+  Returns an %Post{} or %Comment{} reactions
 
   ## Examples
 
-      iex> list_comment_comments(%Comment{})
-      [%Comment{}, ...]
+      iex> list_reactions(%Post{})
+      [%Reaction{}, ...]
+
+      iex> list_reactions(%Comment{})
+      [%Reaction{}, ...]
 
   """
-  @spec list_comment_comments(Comment.t()) :: [Comment.t()]
-  def list_comment_comments(%Comment{} = comment) do
-    comment
-    |> Repo.preload([:comments])
-    |> Map.get(:comments)
+  def list_reactions(reactable)
+      when is_struct(reactable, Post) or is_struct(reactable, Comment),
+      do:
+        reactable
+        |> Repo.preload(:reactions)
+        |> Map.get(:reactions)
+
+  defp list_reactions_by_type(reactable, type)
+       when is_struct(reactable, Post) or is_struct(reactable, Comment)
+       when type in ["like", "dislike"],
+       do:
+         reactable
+         |> Repo.preload(reactions: from(r in Reaction, where: r.type == ^type))
+         |> Map.get(:reactions)
+
+  @spec list_likes(Post.t() | Comment.t()) :: [Reaction.t()]
+  @doc """
+  Returns an %Post{} or %Comment{} likes
+
+  ## Examples
+
+      iex> list_likes(%Post{})
+      [%Reaction{}, ...]
+
+      iex> list_likes(%Comment{})
+      [%Reaction{}, ...]
+
+  """
+  def list_likes(reactable)
+      when is_struct(reactable, Post) or is_struct(reactable, Comment),
+      do: list_reactions_by_type(reactable, "like")
+
+  @spec list_dislikes(Post.t() | Comment.t()) :: [Reaction.t()]
+  @doc """
+  Returns an %Post{} or %Comment{} dislikes
+
+  ## Examples
+
+      iex> list_dislikes(%Post{})
+      [%Reaction{}, ...]
+
+      iex> list_dislikes(%Comment{})
+      [%Reaction{}, ...]
+
+  """
+  def list_dislikes(reactable)
+      when is_struct(reactable, Post) or is_struct(reactable, Comment),
+      do: list_reactions_by_type(reactable, "dislike")
+
+  @spec get_metrics(metricable_entity) :: %{
+          reactions: integer,
+          likes: integer,
+          dislikes: integer,
+          comments: integer
+        }
+  @doc """
+  Returns an %Post{} or %Comment{} metrics
+
+  ## Examples
+
+      iex> get_metrics(%Post{})
+      %{
+        reactions: 0,
+        likes: 0,
+        dislikes: 0,
+        comments: 0
+      }
+
+      iex> get_metrics(%Comment{})
+      %{
+        reactions: 0,
+        likes: 0,
+        dislikes: 0,
+        comments: 0
+      }
+
+  """
+  def get_metrics(metricable)
+      when is_struct(metricable, Post) or is_struct(metricable, Comment) do
+    reactions_count = list_reactions(metricable) |> length()
+    likes_count = list_likes(metricable) |> length()
+    dislikes_count = list_dislikes(metricable) |> length()
+    comments_count = list_comments(metricable) |> length()
+
+    %{
+      reactions: reactions_count,
+      likes: likes_count,
+      dislikes: dislikes_count,
+      comments: comments_count
+    }
   end
 
   @doc """
