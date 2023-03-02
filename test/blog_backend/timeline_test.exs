@@ -176,20 +176,6 @@ defmodule BlogBackend.TimelineTest do
       assert_raise ArgumentError, fn -> get_comment!(nil) end
     end
 
-    @tag comments: "list_comment_comments"
-    test "list_comment_comments/1 with %Comment{} returns all post comments" do
-      %Comment{comment_id: father_comment_id} = comment = comment_fixture(%{father: :comment})
-
-      father_comment = get_comment!(father_comment_id)
-
-      assert [comment] == list_comment_comments(father_comment)
-    end
-
-    @tag comments: "list_comment_comments"
-    test "list_comment_comments/1 with invalid data raise the app" do
-      assert :function_clause == list_comment_comments("invalid") |> catch_error()
-    end
-
     @tag comments: "delete_comment"
     test "delete_comment/1 with valid data deletes the comment" do
       comment = comment_fixture()
@@ -208,6 +194,27 @@ defmodule BlogBackend.TimelineTest do
       comment = comment_fixture()
 
       assert %Ecto.Changeset{} = Timeline.change_comment(comment)
+    end
+
+    @tag comments: "list_comments"
+    test "with valid %Post{} list his comments" do
+      comment = comment_fixture()
+
+      assert father_post = Timeline.get_post!(comment.post_id)
+      assert [comment] == Timeline.list_comments(father_post)
+    end
+
+    @tag comments: "list_comments"
+    test "with valid %Comments{} list his comments" do
+      comment = comment_fixture(%{father: :comment})
+
+      assert father_comment = Timeline.get_comment!(comment.comment_id)
+      assert [comment] == Timeline.list_comments(father_comment)
+    end
+
+    @tag comments: "list_comments"
+    test "with invalid data return an error" do
+      assert_raise FunctionClauseError, fn -> Timeline.list_comments(nil) end
     end
   end
 
@@ -374,31 +381,6 @@ defmodule BlogBackend.TimelineTest do
       reaction = reaction_fixture()
       assert %Ecto.Changeset{} = Timeline.change_reaction(reaction)
     end
-
-    @tag comments_reactions: "get_reactions_metrics"
-    test "get_reactions_metrics/1 with valid %Post{} return his metrics" do
-      %Reaction{post_id: post_id} = reaction_fixture(%{father: :post})
-
-      %Post{} = post = get_post!(post_id)
-
-      assert [reactions: 1, likes: 1, dislikes: 0] ||
-               [reactions: 1, likes: 0, dislikes: 1] == get_reactions_metrics(post)
-    end
-
-    @tag comments_reactions: "get_reactions_metrics"
-    test "get_reactions_metrics/1 with valid %Comment{} return his metrics" do
-      %Reaction{comment_id: comment_id} = reaction_fixture(%{father: :comment})
-
-      %Comment{} = comment = get_comment!(comment_id)
-
-      assert [reactions: 1, likes: 1, dislikes: 0] ||
-               [reactions: 1, likes: 0, dislikes: 1] == get_reactions_metrics(comment)
-    end
-
-    @tag comments_reactions: "get_reactions_metrics"
-    test "get_reactions_metrics/1 with invalid data raise the app" do
-      assert_raise FunctionClauseError, fn -> get_reactions_metrics(nil) end
-    end
   end
 
   describe "users_posts" do
@@ -448,36 +430,6 @@ defmodule BlogBackend.TimelineTest do
     @tag users_reactions: "list_user_reactions"
     test "list_user_reactions/1 invalid user raise the app" do
       assert_raise FunctionClauseError, fn -> list_user_reactions(nil) end
-    end
-  end
-
-  describe "posts_comments" do
-    @tag posts_comments: "count_post_comments"
-    test "count_post_comments/1 with %Post{} returns the number of comments" do
-      post = post_fixture()
-
-      assert 0 == Timeline.count_post_comments(post)
-    end
-
-    @tag posts_comments: "count_post_comments"
-    test "count_post_comments/1 with invalid param raise the app" do
-      assert :function_clause =
-               Timeline.count_post_comments(:invalid)
-               |> catch_error()
-    end
-
-    @tag posts_comments: "list_post_comments"
-    test "list_post_comments/1 with %Post{} returns all post comments" do
-      %Comment{post_id: post_id} = comment = comment_fixture(%{father: :post})
-
-      post = get_post!(post_id)
-
-      assert [comment] == list_post_comments(post)
-    end
-
-    @tag posts_comments: "list_post_comments"
-    test "list_post_comments/1 with invalid data raise the app" do
-      assert :function_clause == list_post_comments("invalid") |> catch_error()
     end
   end
 end
