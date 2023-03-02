@@ -381,6 +381,27 @@ defmodule BlogBackend.TimelineTest do
       reaction = reaction_fixture()
       assert %Ecto.Changeset{} = Timeline.change_reaction(reaction)
     end
+
+    @tag reactions: "list_reactions"
+    test "with valid %Post{} list his reactions" do
+      reaction = reaction_fixture()
+
+      assert father_post = Timeline.get_post!(reaction.post_id)
+      assert [reaction] == Timeline.list_reactions(father_post)
+    end
+
+    @tag reactions: "list_reactions"
+    test "with valid %Comment{} list his reactions" do
+      reaction = reaction_fixture(%{father: :comment})
+
+      assert father_comment = Timeline.get_comment!(reaction.comment_id)
+      assert [reaction] == Timeline.list_reactions(father_comment)
+    end
+
+    @tag reactions: "list_reactions"
+    test "with invalid data return an error" do
+      assert_raise FunctionClauseError, fn -> Timeline.list_reactions(nil) end
+    end
   end
 
   describe "users_posts" do
