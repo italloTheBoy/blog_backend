@@ -261,47 +261,26 @@ defmodule BlogBackend.Timeline do
         |> Repo.preload(:reactions)
         |> Map.get(:reactions)
 
-  defp list_reactions_by_type(reactable, type)
-       when is_struct(reactable, Post) or is_struct(reactable, Comment)
-       when type in ["like", "dislike"],
-       do:
-         reactable
-         |> Repo.preload(reactions: from(r in Reaction, where: r.type == ^type))
-         |> Map.get(:reactions)
-
-  @spec list_likes(Post.t() | Comment.t()) :: [Reaction.t()]
+  @spec list_reactions(reactable_entity, type: String.t()) :: [Reaction.t()]
   @doc """
   Returns an %Post{} or %Comment{} likes
 
   ## Examples
 
-      iex> list_likes(%Post{})
-      [%Reaction{}, ...]
+      iex> list_reactions(%Post{}, type: "like")
+      [%Reaction{type: "like"}, ...]
 
-      iex> list_likes(%Comment{})
-      [%Reaction{}, ...]
-
-  """
-  def list_likes(reactable)
-      when is_struct(reactable, Post) or is_struct(reactable, Comment),
-      do: list_reactions_by_type(reactable, "like")
-
-  @spec list_dislikes(Post.t() | Comment.t()) :: [Reaction.t()]
-  @doc """
-  Returns an %Post{} or %Comment{} dislikes
-
-  ## Examples
-
-      iex> list_dislikes(%Post{})
-      [%Reaction{}, ...]
-
-      iex> list_dislikes(%Comment{})
-      [%Reaction{}, ...]
+      iex> list_reactions(%Comment{}, type: "dislike")
+      [%Reaction{type: "dislike"}, ...]
 
   """
-  def list_dislikes(reactable)
-      when is_struct(reactable, Post) or is_struct(reactable, Comment),
-      do: list_reactions_by_type(reactable, "dislike")
+  def list_reactions(reactable, type: type)
+      when is_struct(reactable, Post) or is_struct(reactable, Comment)
+      when type in ["like", "dislike"],
+      do:
+        reactable
+        |> Repo.preload(reactions: from(r in Reaction, where: r.type == ^type))
+        |> Map.get(:reactions)
 
   @spec get_metrics(metricable_entity) :: %{
           reactions: integer,
@@ -334,8 +313,8 @@ defmodule BlogBackend.Timeline do
   def get_metrics(metricable)
       when is_struct(metricable, Post) or is_struct(metricable, Comment) do
     reactions_count = list_reactions(metricable) |> length()
-    likes_count = list_likes(metricable) |> length()
-    dislikes_count = list_dislikes(metricable) |> length()
+    likes_count = list_reactions(metricable, type: "like") |> length()
+    dislikes_count = list_reactions(metricable, type: "dislike") |> length()
     comments_count = list_comments(metricable) |> length()
 
     %{

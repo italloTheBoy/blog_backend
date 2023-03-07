@@ -383,7 +383,7 @@ defmodule BlogBackend.TimelineTest do
     end
 
     @tag reactions: "list_reactions"
-    test "with valid %Post{} list his reactions" do
+    test "list_reactions/1 with valid %Post{} list his reactions" do
       reaction = reaction_fixture()
 
       assert father_post = Timeline.get_post!(reaction.post_id)
@@ -391,7 +391,7 @@ defmodule BlogBackend.TimelineTest do
     end
 
     @tag reactions: "list_reactions"
-    test "with valid %Comment{} list his reactions" do
+    test "list_reactions/1 with valid %Comment{} list his reactions" do
       reaction = reaction_fixture(%{father: :comment})
 
       assert father_comment = Timeline.get_comment!(reaction.comment_id)
@@ -399,8 +399,26 @@ defmodule BlogBackend.TimelineTest do
     end
 
     @tag reactions: "list_reactions"
-    test "with invalid data return an error" do
+    test "list_reactions/1 with invalid data return an error" do
       assert_raise FunctionClauseError, fn -> Timeline.list_reactions(nil) end
+    end
+
+    @tag reactions: "list_reactions"
+    test "list_reactions/2 when type is like list all likes" do
+      like = reaction_fixture(%{father: :post, type: "like"})
+      _dislike = reaction_fixture(%{father: :post, type: "dislike"})
+
+      assert father_comment = Timeline.get_post!(like.post_id)
+      assert [like] == Timeline.list_reactions(father_comment, type: "like")
+    end
+
+    @tag reactions: "list_reactions"
+    test "list_reactions/2 when type is dislike list all dislikes" do
+      _like = reaction_fixture(%{father: :post, type: "like"})
+      dislike = reaction_fixture(%{father: :post, type: "dislike"})
+
+      assert father_comment = Timeline.get_post!(dislike.post_id)
+      assert [dislike] == Timeline.list_reactions(father_comment, type: "dislike")
     end
   end
 
