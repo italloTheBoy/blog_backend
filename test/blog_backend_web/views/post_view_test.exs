@@ -34,6 +34,26 @@ defmodule BlogBackendWeb.PostViewTest do
            } == View.render(PostView, "show.json", post: post)
   end
 
+  @tag post_view: "metrics"
+  test "renders metrics.json" do
+    likes = System.unique_integer([:positive])
+    dislikes = System.unique_integer([:positive])
+    comments = System.unique_integer([:positive])
+
+    reactions = likes + dislikes
+
+    metrics = %{
+      reactions: reactions,
+      likes: likes,
+      dislikes: dislikes,
+      comments: comments
+    }
+
+    assert %{
+             data: metrics
+           } == View.render(PostView, "metrics.json", metrics)
+  end
+
   describe "renders post.json" do
     @tag post_view: "post"
     test "with no option render all fields", %{post: post} do

@@ -1,7 +1,7 @@
 defmodule BlogBackendWeb.CommentView do
   use BlogBackendWeb, :view
 
-  @metrics_fields [:commets, :reactions, :likes, :dislikes]
+  @metrics_fields [:comments, :reactions, :likes, :dislikes]
 
   @comment_fields [
     :id,

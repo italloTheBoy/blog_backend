@@ -4,7 +4,7 @@ defmodule BlogBackendWeb.PostView do
   alias BlogBackend.Timeline.Post
 
   @post_fields [:id, :user_id, :body]
-  @metrics_fields [:commets, :reactions, :likes, :dislikes]
+  @metrics_fields [:comments, :reactions, :likes, :dislikes]
 
   def render("id.json", %{post: %Post{} = post}),
     do: %{
