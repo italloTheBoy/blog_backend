@@ -1,6 +1,8 @@
 defmodule BlogBackendWeb.CommentView do
   use BlogBackendWeb, :view
 
+  @metrics_fields [:commets, :reactions, :likes, :dislikes]
+
   @comment_fields [
     :id,
     :user_id,
@@ -23,6 +25,17 @@ defmodule BlogBackendWeb.CommentView do
     do: %{
       data: %{comment: render("comment.json", comment: comment)}
     }
+
+  def render(
+        "metrics.json",
+        %{
+          reactions: _reactions,
+          likes: _likes,
+          dislikes: _dislikes,
+          comments: _comments
+        } = metrics
+      ),
+      do: %{data: Map.take(metrics, @metrics_fields)}
 
   def render("comment.json", %{comment: comment, only: selected_fields})
       when is_list(selected_fields),

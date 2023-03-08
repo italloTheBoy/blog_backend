@@ -304,56 +304,6 @@ defmodule BlogBackendWeb.ReactionControllerTest do
     end
   end
 
-  describe "post reactions metrics" do
-    setup [:create_post]
-
-    @tag reaction_controller: "post_reactions_metrics"
-    test "with post id render reactions his metrics", %{
-      conn: conn,
-      post: post
-    } do
-      conn = get(conn, Routes.post_reaction_path(conn, :metrics, post.id))
-      assert json_response(conn, 200)
-    end
-
-    @tag reaction_controller: "post_reactions_metrics"
-    test "with inexistent id render renders an error", %{conn: conn} do
-      conn = get(conn, Routes.post_reaction_path(conn, :metrics, 0))
-      assert json_response(conn, 404)
-    end
-
-    @tag reaction_controller: "post_reactions_metrics"
-    test "with invalid id render renders an error", %{conn: conn} do
-      conn = get(conn, Routes.post_reaction_path(conn, :metrics, "invalid"))
-      assert json_response(conn, 422)
-    end
-  end
-
-  describe "comment reactions metrics" do
-    setup [:create_comment]
-
-    @tag reaction_controller: "comment_reactions_metrics"
-    test "with comment id render reactions his metrics", %{
-      conn: conn,
-      comment: comment
-    } do
-      conn = get(conn, Routes.comment_reaction_path(conn, :metrics, comment.id))
-      assert json_response(conn, 200)
-    end
-
-    @tag reaction_controller: "comment_reactions_metrics"
-    test "with inexistent id render renders an error", %{conn: conn} do
-      conn = get(conn, Routes.comment_reaction_path(conn, :metrics, 0))
-      assert json_response(conn, 404)
-    end
-
-    @tag reaction_controller: "comment_reactions_metrics"
-    test "with invalid id render renders an error", %{conn: conn} do
-      conn = get(conn, Routes.comment_reaction_path(conn, :metrics, "invalid"))
-      assert json_response(conn, 422)
-    end
-  end
-
   defp create_comment(%{user: user}),
     do: %{
       comment: comment_fixture(%{user_id: user.id, father: :post})

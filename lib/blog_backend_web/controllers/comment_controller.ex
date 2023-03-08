@@ -21,7 +21,7 @@ defmodule BlogBackendWeb.CommentController do
   def index(conn, %{"post_id" => id}) do
     with(
       {:ok, post} <- get_post(id),
-      comments <- list_post_comments(post)
+      comments <- list_comments(post)
     ) do
       render(conn, "index.json", comments: comments)
     end
@@ -30,9 +30,20 @@ defmodule BlogBackendWeb.CommentController do
   def index(conn, %{"comment_id" => id}) do
     with(
       {:ok, comment} <- get_comment(id),
-      comments <- list_comment_comments(comment)
+      comments <- list_comments(comment)
     ) do
       render(conn, "index.json", comments: comments)
+    end
+  end
+
+  @spec metrics(Plug.Conn.t(), map) :: FallbackController.t()
+  def metrics(conn, %{"id" => id}) do
+    with(
+      {:ok, comment} <- get_comment(id),
+      metrics <- get_metrics(comment)
+    ) do
+      conn
+      |> render("metrics.json", metrics)
     end
   end
 

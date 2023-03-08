@@ -86,27 +86,6 @@ defmodule BlogBackendWeb.ReactionController do
     end
   end
 
-  @spec metrics(Plug.Conn.t(), map) :: FallbackController.t()
-  def metrics(conn, %{"post_id" => id}) do
-    with(
-      {:ok, post} <- get_post(id),
-      reactions_statics <- get_reactions_metrics(post)
-    ) do
-      conn
-      |> render("metrics.json", reactions_statics)
-    end
-  end
-
-  def metrics(conn, %{"comment_id" => id}) do
-    with(
-      {:ok, comment} <- get_comment(id),
-      reactions_statics <- get_reactions_metrics(comment)
-    ) do
-      conn
-      |> render("metrics.json", reactions_statics)
-    end
-  end
-
   @spec update(Plug.Conn.t(), map) :: FallbackController.t()
   def update(conn, %{"id" => id}) do
     with(

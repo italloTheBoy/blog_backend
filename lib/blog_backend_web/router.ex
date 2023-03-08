@@ -19,6 +19,9 @@ defmodule BlogBackendWeb.Router do
 
     get "/users/:search", UserController, :index
 
+    get "/post/:id/metrics", PostController, :metrics
+    get "/comment/:id/metrics", CommentController, :metrics
+
     resources "/user", UserController, only: [:show] do
       resources "/posts", PostController, only: [:index]
       resources "/comments", CommentController, only: [:index]
@@ -27,12 +30,10 @@ defmodule BlogBackendWeb.Router do
 
     resources "/post", PostController, only: [:show] do
       resources "/comments", CommentController, only: [:index]
-      get "/reactions/metrics", ReactionController, :metrics
     end
 
     resources "/comment", CommentController, only: [:show] do
       resources "/comments", CommentController, only: [:index]
-      get "/reactions/metrics", ReactionController, :metrics
     end
   end
 

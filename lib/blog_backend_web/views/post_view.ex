@@ -4,6 +4,7 @@ defmodule BlogBackendWeb.PostView do
   alias BlogBackend.Timeline.Post
 
   @post_fields [:id, :user_id, :body]
+  @metrics_fields [:commets, :reactions, :likes, :dislikes]
 
   def render("id.json", %{post: %Post{} = post}),
     do: %{
@@ -19,6 +20,17 @@ defmodule BlogBackendWeb.PostView do
     do: %{
       data: %{post: render("post.json", post: post)}
     }
+
+  def render(
+        "metrics.json",
+        %{
+          reactions: _reactions,
+          likes: _likes,
+          dislikes: _dislikes,
+          comments: _comments
+        } = metrics
+      ),
+      do: %{data: Map.take(metrics, @metrics_fields)}
 
   def render("post.json", %{post: post, only: selected_fields})
       when is_list(selected_fields),

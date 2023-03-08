@@ -216,6 +216,28 @@ defmodule BlogBackendWeb.CommentControllerTest do
     end
   end
 
+  describe "comment metrics" do
+    setup [:create_comment, :create_reaction]
+
+    @tag comment_controller: "comment_metrics"
+    test "renders an comment metrics", %{conn: conn, comment: comment} do
+      conn = get(conn, Routes.comment_path(conn, :metrics, comment.id))
+      assert response(conn, 200)
+    end
+
+    @tag comment_controller: "comment_metrics"
+    test "renders an error when comment cant be finded", %{conn: conn} do
+      conn = get(conn, Routes.comment_path(conn, :metrics, 0))
+      assert response(conn, 404)
+    end
+
+    @tag comment_controller: "comment_metrics"
+    test "renders an error when recived id is invalid", %{conn: conn} do
+      conn = get(conn, Routes.comment_path(conn, :metrics, "invalid_id"))
+      assert response(conn, 422)
+    end
+  end
+
   defp create_comment(%{user: user}),
     do: %{
       comment: comment_fixture(%{user_id: user.id, father: :post})
@@ -244,4 +266,56 @@ defmodule BlogBackendWeb.CommentControllerTest do
 
     %{conn: conn, user: user, token: token}
   end
+
+  defp create_reaction(%{user: user, post: post}),
+    do: %{
+      reaction:
+        reaction_fixture(%{
+          father: :post,
+          user_id: user.id,
+          post_id: post.id
+        })
+    }
+
+  defp create_reaction(%{user: user, comment: comment}),
+    do: %{
+      reaction:
+        reaction_fixture(%{
+          father: :comment,
+          user_id: user.id,
+          comment_id: comment.id
+        })
+    }
+
+  defp create_reaction(%{post: post}),
+    do: %{
+      reaction:
+        reaction_fixture(%{
+          father: :post,
+          post_id: post.id
+        })
+    }
+
+  defp create_reaction(%{comment: comment}),
+    do: %{
+      reaction:
+        reaction_fixture(%{
+          father: :comment,
+          comment_id: comment.id
+        })
+    }
+
+  defp create_reaction(%{user: user}),
+    do: %{
+      reaction:
+        reaction_fixture(%{
+          user_id: user.id,
+          father: :post
+        })
+    }
+
+  defp create_reaction(_),
+    do: %{
+      reaction: reaction_fixture()
+    }
 end

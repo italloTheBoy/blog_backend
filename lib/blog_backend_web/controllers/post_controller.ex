@@ -51,4 +51,15 @@ defmodule BlogBackendWeb.PostController do
       send_resp(conn, 204, "")
     end
   end
+
+  @spec metrics(Plug.Conn.t(), map) :: FallbackController.t()
+  def metrics(conn, %{"id" => id}) do
+    with(
+      {:ok, post} <- get_post(id),
+      metrics <- get_metrics(post)
+    ) do
+      conn
+      |> render("metrics.json", metrics)
+    end
+  end
 end
